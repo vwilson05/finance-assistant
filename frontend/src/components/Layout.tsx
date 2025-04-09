@@ -18,7 +18,7 @@ import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
   Person as PersonIcon,
-  Strategy as StrategyIcon,
+  TrendingUp as TrendingUpIcon,
   Chat as ChatIcon,
 } from '@mui/icons-material';
 
@@ -37,7 +37,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'Financial Profile', icon: <PersonIcon />, path: '/financial-profile' },
-    { text: 'Strategies', icon: <StrategyIcon />, path: '/strategies' },
+    { text: 'Strategies', icon: <TrendingUpIcon />, path: '/strategies' },
     { text: 'Chat', icon: <ChatIcon />, path: '/chat' },
   ];
 
