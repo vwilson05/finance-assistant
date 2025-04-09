@@ -1,18 +1,28 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout/Layout';
+import Home from './pages/Home/Home';
+import './App.css';
+
+// Placeholder components for other pages
+const Dashboard = () => <div className="page-container">Dashboard Page</div>;
+const Profile = () => <div className="page-container">Profile Page</div>;
+const Login = () => <div className="page-container">Login Page</div>;
+const Register = () => <div className="page-container">Register Page</div>;
 
 const App: React.FC = () => {
   return (
-    <div>
-      <h1>Financial Assistant</h1>
-      <Routes>
-        <Route path="/" element={<div>Home Page</div>} />
-        <Route path="/login" element={<div>Login Page</div>} />
-        <Route path="/register" element={<div>Register Page</div>} />
-        <Route path="/dashboard" element={<div>Dashboard</div>} />
-        <Route path="/profile" element={<div>Profile Page</div>} />
-      </Routes>
-    </div>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 };
 
