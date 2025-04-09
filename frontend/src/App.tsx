@@ -2,13 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import Home from './pages/Home/Home';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Profile from './pages/Profile/Profile';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
 import './App.css';
-
-// Placeholder components for other pages
-const Dashboard = () => <div className="page-container">Dashboard Page</div>;
-const Profile = () => <div className="page-container">Profile Page</div>;
-const Login = () => <div className="page-container">Login Page</div>;
-const Register = () => <div className="page-container">Register Page</div>;
 
 const App: React.FC = () => {
   return (
