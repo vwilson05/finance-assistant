@@ -18,16 +18,37 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  const requestInfo = {
+    method: req.method,
+    url: req.url,
+    params: req.params,
+    query: req.query,
+    body: req.body,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  };
+
   if (err instanceof AppError) {
-    logger.error(`${err.statusCode} - ${err.message}`);
+    logger.error({
+      message: err.message,
+      statusCode: err.statusCode,
+      request: requestInfo,
+      stack: err.stack,
+    });
+    
     return res.status(err.statusCode).json({
       status: 'error',
       message: err.message,
     });
   }
 
-  // Log unexpected errors
-  logger.error('Unexpected error:', err);
+  // Log unexpected errors with request context
+  logger.error({
+    message: 'Unexpected error',
+    error: err.message,
+    stack: err.stack,
+    request: requestInfo,
+  });
   
   return res.status(500).json({
     status: 'error',
