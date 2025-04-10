@@ -10,7 +10,8 @@
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "init-vector-store": "ts-node scripts/init-vector-store.ts"
+    "init-vector-store": "ts-node scripts/init-vector-store.ts",
+    "migrate": "ts-node scripts/run-migrations.ts"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",

@@ -102,6 +102,9 @@ export class AIService {
                     importance: 'medium'
                 }
             );
+            
+            // Track user preferences and goals mentioned in the message
+            await this.trackUserPreferencesFromMessage(text, metadata);
         }
         
         // If this is an AI response, add it as conversation context
@@ -112,6 +115,120 @@ export class AIService {
                     ...metadata,
                     type: 'conversation_context',
                     importance: 'medium'
+                }
+            );
+        }
+    }
+
+    /**
+     * Track user preferences and goals mentioned in messages
+     */
+    private async trackUserPreferencesFromMessage(
+        message: string,
+        metadata: Record<string, any>
+    ): Promise<void> {
+        const messageLower = message.toLowerCase();
+        
+        // Track risk tolerance preferences
+        if (messageLower.includes('risk') || messageLower.includes('conservative') || messageLower.includes('aggressive')) {
+            let riskPreference = 'moderate';
+            if (messageLower.includes('conservative') || messageLower.includes('low risk') || messageLower.includes('safe')) {
+                riskPreference = 'conservative';
+            } else if (messageLower.includes('aggressive') || messageLower.includes('high risk') || messageLower.includes('risky')) {
+                riskPreference = 'aggressive';
+            }
+            
+            await this.vectorStore.addDocument(
+                `User mentioned a ${riskPreference} risk tolerance in conversation.`,
+                {
+                    ...metadata,
+                    type: 'user_preference',
+                    category: 'risk_tolerance',
+                    importance: 'medium',
+                    source: 'conversation'
+                }
+            );
+        }
+        
+        // Track investment preferences
+        if (messageLower.includes('invest') || messageLower.includes('stock') || messageLower.includes('fund')) {
+            let investmentType = 'general';
+            if (messageLower.includes('stock') || messageLower.includes('equity')) {
+                investmentType = 'stocks';
+            } else if (messageLower.includes('bond') || messageLower.includes('fixed income')) {
+                investmentType = 'bonds';
+            } else if (messageLower.includes('real estate') || messageLower.includes('property')) {
+                investmentType = 'real estate';
+            } else if (messageLower.includes('crypto') || messageLower.includes('bitcoin')) {
+                investmentType = 'cryptocurrency';
+            }
+            
+            await this.vectorStore.addDocument(
+                `User expressed interest in ${investmentType} investments.`,
+                {
+                    ...metadata,
+                    type: 'user_preference',
+                    category: 'investment_type',
+                    importance: 'medium',
+                    source: 'conversation'
+                }
+            );
+        }
+        
+        // Track financial goals
+        if (messageLower.includes('goal') || messageLower.includes('target') || messageLower.includes('aim') || 
+            messageLower.includes('want to') || messageLower.includes('would like to')) {
+            
+            // Extract potential goals from the message
+            const goalPatterns = [
+                /(?:goal|target|aim|want to|would like to)\s+(?:is|to|of)?\s+([^.,!?]+)/i,
+                /(?:save|invest|earn|make)\s+(\d+[kKmMbB]?\s*(?:dollars|bucks|money|USD)?)/i,
+                /(?:retire|buy|purchase|own)\s+([^.,!?]+)/i
+            ];
+            
+            for (const pattern of goalPatterns) {
+                const match = message.match(pattern);
+                if (match && match[1]) {
+                    const goal = match[1].trim();
+                    await this.vectorStore.addDocument(
+                        `User mentioned a financial goal: ${goal}`,
+                        {
+                            ...metadata,
+                            type: 'user_preference',
+                            category: 'financial_goals',
+                            importance: 'medium',
+                            source: 'conversation'
+                        }
+                    );
+                }
+            }
+        }
+        
+        // Track emotional state related to finances
+        if (messageLower.includes('worried') || messageLower.includes('concerned') || messageLower.includes('anxious') || 
+            messageLower.includes('stress') || messageLower.includes('frustrated') || messageLower.includes('angry')) {
+            
+            let emotionalState = 'negative';
+            let financialConcern = 'general';
+            
+            if (messageLower.includes('debt') || messageLower.includes('loan') || messageLower.includes('credit')) {
+                financialConcern = 'debt';
+            } else if (messageLower.includes('retire') || messageLower.includes('future') || messageLower.includes('old age')) {
+                financialConcern = 'retirement';
+            } else if (messageLower.includes('job') || messageLower.includes('work') || messageLower.includes('income')) {
+                financialConcern = 'income';
+            } else if (messageLower.includes('market') || messageLower.includes('stock') || messageLower.includes('invest')) {
+                financialConcern = 'investments';
+            }
+            
+            await this.vectorStore.addDocument(
+                `User expressed ${emotionalState} emotions about their ${financialConcern} financial situation.`,
+                {
+                    ...metadata,
+                    type: 'user_preference',
+                    category: 'emotional_state',
+                    importance: 'medium',
+                    source: 'conversation'
                 }
             );
         }
