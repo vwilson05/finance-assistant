@@ -61,29 +61,45 @@ else
 fi
 
 # Pull the Mistral model if not already pulled
-echo -e "${YELLOW}Checking if Smol model is available...${NC}"
-ollama list | grep -q smollm2:135m
+echo -e "${YELLOW}Checking if tinyllama model is available...${NC}"
+ollama list | grep -q tinyllama
 if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}Pulling Smol model (this may take a while)...${NC}"
-    ollama pull smollm2:135m
+    echo -e "${YELLOW}Pulling tinyllama model (this may take a while)...${NC}"
+    ollama pull tinyllama
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}Smol model pulled successfully!${NC}"
+        echo -e "${GREEN}tinyllama model pulled successfully!${NC}"
     else
-        echo -e "${RED}Failed to pull Smol model.${NC}"
+        echo -e "${RED}Failed to pull tinyllama model.${NC}"
     fi
 else
-    echo -e "${GREEN}Smol model is already available.${NC}"
+    echo -e "${GREEN}tinyllama model is already available.${NC}"
 fi
 
 # Start ChromaDB
 echo -e "${YELLOW}Starting ChromaDB...${NC}"
 mkdir -p data/chromadb
-chroma run --path ./data/chromadb --host 0.0.0.0 --port 8000 &
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}ChromaDB started successfully!${NC}"
-else
-    echo -e "${RED}Failed to start ChromaDB.${NC}"
+# Try different ports if 8000 is not available
+CHROMA_PORT=8000
+MAX_PORT_ATTEMPTS=5
+PORT_ATTEMPT=0
+
+while [ $PORT_ATTEMPT -lt $MAX_PORT_ATTEMPTS ]; do
+    if ! lsof -i :$CHROMA_PORT > /dev/null 2>&1; then
+        chroma run --path ./data/chromadb --host 0.0.0.0 --port $CHROMA_PORT &
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}ChromaDB started successfully on port $CHROMA_PORT!${NC}"
+            # Update the port in the environment
+            export CHROMA_PORT=$CHROMA_PORT
+            break
+        fi
+    fi
+    PORT_ATTEMPT=$((PORT_ATTEMPT + 1))
+    CHROMA_PORT=$((CHROMA_PORT + 1))
+done
+
+if [ $PORT_ATTEMPT -eq $MAX_PORT_ATTEMPTS ]; then
+    echo -e "${RED}Failed to start ChromaDB after trying multiple ports.${NC}"
     exit 1
 fi
 

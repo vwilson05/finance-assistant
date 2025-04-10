@@ -15,7 +15,7 @@ export class OllamaService {
     private constructor() {
         // Default values in case config is not fully loaded
         const defaultBaseUrl = 'http://localhost:11434';
-        const defaultModel = 'smollm2:135m';
+        const defaultModel = 'tinyllama';
         
         // Safely access config properties with fallbacks
         this.baseUrl = config?.ai?.ollamaBaseUrl || defaultBaseUrl;

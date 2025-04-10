@@ -16,11 +16,11 @@ export const config = {
     // AI Service configuration
     ai: {
         // ChromaDB configuration
-        chromaDbPath: process.env.CHROMA_DB_PATH || 'http://localhost:8000',
+        chromaDbPath: process.env.CHROMA_DB_PATH || `http://localhost:${process.env.CHROMA_PORT || 8000}`,
         
         // Ollama configuration
         ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
-        ollamaModel: process.env.OLLAMA_MODEL || 'smollm2:135m'
+        ollamaModel: process.env.OLLAMA_MODEL || 'tinyllama'
     },
 
     // Logging configuration
