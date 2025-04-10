@@ -20,7 +20,7 @@ export const config = {
         
         // Ollama configuration
         ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
-        ollamaModel: process.env.OLLAMA_MODEL || 'mistral'
+        ollamaModel: process.env.OLLAMA_MODEL || 'smollm2:135m'
     },
 
     // Logging configuration

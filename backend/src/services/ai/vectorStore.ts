@@ -7,9 +7,11 @@ export class VectorStore {
     private static instance: VectorStore;
 
     private constructor() {
+        // Connect to local ChromaDB server
         this.client = new ChromaClient({
-            path: config.chromaDbPath || 'http://localhost:8000'
+            path: 'http://localhost:8000'
         });
+        console.log('Initializing ChromaDB connection to local server');
     }
 
     public static getInstance(): VectorStore {
@@ -26,6 +28,7 @@ export class VectorStore {
                 name: 'financial_context',
                 metadata: { 'description': 'Financial context and user data for AI personalization' }
             });
+            console.log('Successfully connected to local ChromaDB and initialized collection');
         } catch (error) {
             console.error('Failed to initialize vector store:', error);
             throw error;
@@ -60,10 +63,12 @@ export class VectorStore {
                 nResults: nResults
             });
 
-            return results.documents[0].map((doc, index) => ({
-                text: doc,
-                metadata: results.metadatas[0][index]
-            }));
+            return results.documents[0]
+                .filter((doc): doc is string => doc !== null)
+                .map((doc, index) => ({
+                    text: doc,
+                    metadata: results.metadatas[0][index] || {}
+                }));
         } catch (error) {
             console.error('Failed to query vector store:', error);
             throw error;

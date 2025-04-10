@@ -1,0 +1,556 @@
+.financial-plan {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.plan-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.plan-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+}
+
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.step {
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.step.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.step-connector {
+  width: 50px;
+  height: 2px;
+  background-color: #f8f9fa;
+  margin: 0 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.step-connector.active {
+  background-color: #007bff;
+}
+
+.plan-content {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.step-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Profile Section */
+.profile-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.profile-card {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.profile-card h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.profile-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.risk-indicator {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.risk-level {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.risk-level.moderate {
+  background-color: #ffd700;
+  color: #2c3e50;
+}
+
+/* AI Insights Section */
+.ai-insights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.insight-card {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.insight-card h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.insight-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.insight-card li {
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.insight-card li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #007bff;
+}
+
+/* Goals Section */
+.goals-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.goal-card {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.goal-deadline {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.goal-progress {
+  margin-top: 1rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #007bff;
+  transition: width 0.3s ease;
+}
+
+.progress-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.add-goal-card {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-goal-card:hover {
+  background-color: #e9ecef;
+}
+
+/* Plan Section */
+.plan-container {
+  margin-bottom: 2rem;
+}
+
+.plan-header {
+  margin-bottom: 2rem;
+}
+
+.plan-section {
+  margin-bottom: 2rem;
+}
+
+.recommendations-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.recommendation-item {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.recommendation-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.priority-badge {
+  background-color: #007bff;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.timeframe {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.milestones-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.milestone-item {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.milestone-checkbox {
+  margin-right: 1rem;
+}
+
+.milestone-content {
+  flex: 1;
+}
+
+.milestone-date {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Execution Section */
+.execution-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.progress-form {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-group textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.chat-container {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.chat-message {
+  margin-bottom: 1rem;
+  max-width: 80%;
+}
+
+.chat-message.user {
+  margin-left: auto;
+}
+
+.chat-message .message-content {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background-color: #007bff;
+  color: white;
+}
+
+.chat-message.assistant .message-content {
+  background-color: #e9ecef;
+  color: #2c3e50;
+}
+
+.chat-message.loading .message-content {
+  background-color: #e9ecef;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.chat-input {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Oversight Section */
+.oversight-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.market-insights {
+  display: grid;
+  gap: 1rem;
+}
+
+.market-insight-card {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.adaptations-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.adaptation-item {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.adaptation-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.plan-health {
+  text-align: center;
+}
+
+.health-indicator {
+  display: inline-block;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.health-indicator.good {
+  background-color: #28a745;
+  color: white;
+}
+
+/* Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.primary-button,
+.secondary-button,
+.accept-button,
+.reject-button,
+.update-button,
+.add-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.primary-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.primary-button:hover {
+  background-color: #0056b3;
+}
+
+.secondary-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.secondary-button:hover {
+  background-color: #545b62;
+}
+
+.accept-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.accept-button:hover {
+  background-color: #218838;
+}
+
+.reject-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.reject-button:hover {
+  background-color: #c82333;
+}
+
+.update-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  width: 100%;
+}
+
+.update-button:hover {
+  background-color: #0056b3;
+}
+
+.add-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  margin-top: 1rem;
+}
+
+.add-button:hover {
+  background-color: #218838;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .financial-plan {
+    padding: 1rem;
+  }
+
+  .step-indicator {
+    flex-wrap: wrap;
+  }
+
+  .step {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .step-connector {
+    width: 20px;
+  }
+
+  .profile-summary,
+  .ai-insights,
+  .goals-container,
+  .recommendations-list,
+  .execution-container,
+  .oversight-container {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+} 

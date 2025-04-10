@@ -1,6 +1,16 @@
 ## Features Overview
 This document outlines the feature set for the Personal Financial Advisor app, offering step-by-step instructions on design, development, testing, user acceptance, and deployment.
 
+## User Flow
+The application follows a comprehensive user flow:
+
+1. **Profile Creation**: Users create detailed financial profiles with income, expenses, savings, debt, and risk tolerance.
+2. **AI Understanding**: The AI analyzes the user's financial situation and understands their unique circumstances.
+3. **Goal Development**: The AI helps users develop realistic and achievable financial goals.
+4. **Plan Creation**: The AI develops a personalized financial plan and exposes it in the app.
+5. **Plan Execution**: Users input changes to their data after acting on the plan.
+6. **Oversight & Adaptation**: The AI oversees plan execution and suggests changes based on the user's financial picture, market news, and other factors.
+
 ## Feature List
 
 ### 1. Comprehensive Financial Profiling
@@ -17,7 +27,35 @@ This document outlines the feature set for the Personal Financial Advisor app, o
 - **Deployment:**  
   Merge once profiles are accurately captured and retrievable.
 
-### 2. Tailored Investment Strategy & Plan Generation
+### 2. AI-Powered Financial Understanding
+- **Description:**  
+  The AI analyzes the user's financial situation to understand their unique circumstances and needs.
+- **Design & Development:**  
+  - Implement vector store to store and retrieve financial context.
+  - Develop AI service to process and understand financial data.
+  - Create endpoints for AI analysis of financial profiles.
+- **Testing:**  
+  Test AI understanding with various financial profiles.
+- **UAT:**  
+  Verify that the AI correctly understands different financial situations.
+- **Deployment:**  
+  Deploy with clear documentation on how the AI processes financial data.
+
+### 3. AI-Assisted Goal Development
+- **Description:**  
+  The AI helps users develop realistic and achievable financial goals based on their profile.
+- **Design & Development:**  
+  - Implement goal suggestion algorithm based on financial profile.
+  - Create UI for goal creation and modification.
+  - Develop endpoints for goal management.
+- **Testing:**  
+  Test goal suggestions with various financial profiles.
+- **UAT:**  
+  Verify that suggested goals are realistic and achievable.
+- **Deployment:**  
+  Deploy with clear documentation on how goals are suggested.
+
+### 4. Tailored Investment Strategy & Plan Generation
 - **Description:**  
   Generate custom investment strategies and financial plans based on user-specific goals.
 - **Design & Development:**  
@@ -30,7 +68,21 @@ This document outlines the feature set for the Personal Financial Advisor app, o
 - **Deployment:**  
   Roll out with clear documentation and backup strategies.
 
-### 3. AI-Powered Chatbot Advisor
+### 5. Plan Execution Tracking
+- **Description:**  
+  Allow users to track their progress on financial plans and update their financial data.
+- **Design & Development:**  
+  - Create UI for tracking progress on financial plans.
+  - Implement data update functionality for financial profiles.
+  - Develop endpoints for progress tracking and data updates.
+- **Testing:**  
+  Test progress tracking with various financial plans.
+- **UAT:**  
+  Verify that progress tracking is accurate and intuitive.
+- **Deployment:**  
+  Deploy with clear documentation on how to track progress.
+
+### 6. AI-Powered Chatbot Advisor
 - **Description:**  
   Integrate a conversational chatbot allowing users to ask questions like "Should I sell my real estate holdings?" and receive data-driven advice.
 - **Design & Development:**  
@@ -43,7 +95,7 @@ This document outlines the feature set for the Personal Financial Advisor app, o
 - **Deployment:**  
   Ensure fallback instructions and regular AI model updates.
 
-### 4. Dynamic Market Monitoring & Plan Adjustment
+### 7. Dynamic Market Monitoring & Plan Adjustment
 - **Description:**  
   Monitor market data and adjust financial plans in real time.
 - **Design & Development:**  
@@ -56,7 +108,7 @@ This document outlines the feature set for the Personal Financial Advisor app, o
 - **Deployment:**  
   Deploy in conjunction with robust alerting mechanisms.
 
-### 5. Advanced Tax Optimization Tools
+### 8. Advanced Tax Optimization Tools
 - **Description:**  
   Offer strategies to minimize tax liabilities and maximize returns, including tax loss harvesting and optimal fund allocation.
 - **Design & Development:**  

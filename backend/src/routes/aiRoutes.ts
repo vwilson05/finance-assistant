@@ -1,20 +1,20 @@
 import { Router } from 'express';
-import { AIController } from '../controllers/aiController';
 import { authenticate } from '../middleware/auth';
+import { aiLimiter } from '../middleware/rateLimit';
 
 const router = Router();
+
+// Protect all AI routes with authentication and rate limiting
+router.use(authenticate);
+router.use(aiLimiter);
+
+// Import controllers after middleware setup to avoid circular dependencies
+import { AIController } from '../controllers/aiController';
 const aiController = AIController.getInstance();
 
-// Apply authentication middleware to all routes
-router.use(authenticate);
-
-// Initialize AI service
-router.post('/initialize', (req, res) => aiController.initialize(req, res));
-
-// Add financial context
-router.post('/context', (req, res) => aiController.addContext(req, res));
-
-// Get financial advice
-router.post('/advice', (req, res) => aiController.getAdvice(req, res));
+// AI routes
+router.post('/initialize', aiController.initialize.bind(aiController));
+router.post('/context', aiController.addContext.bind(aiController));
+router.post('/advice', aiController.getAdvice.bind(aiController));
 
 export default router; 

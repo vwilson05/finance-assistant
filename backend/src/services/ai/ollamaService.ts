@@ -13,8 +13,13 @@ export class OllamaService {
     private model: string;
 
     private constructor() {
-        this.baseUrl = config.ollamaBaseUrl || 'http://localhost:11434';
-        this.model = config.ollamaModel || 'mistral';
+        // Default values in case config is not fully loaded
+        const defaultBaseUrl = 'http://localhost:11434';
+        const defaultModel = 'smollm2:135m';
+        
+        // Safely access config properties with fallbacks
+        this.baseUrl = config?.ai?.ollamaBaseUrl || defaultBaseUrl;
+        this.model = config?.ai?.ollamaModel || defaultModel;
     }
 
     public static getInstance(): OllamaService {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppDataSource } from '../config/database';
-import { FinancialProfile } from '../models/FinancialProfile';
+import { FinancialProfile, RiskTolerance, IncomeFrequency } from '../models/FinancialProfile';
 import { User } from '../models/User';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
@@ -13,13 +13,42 @@ export class FinancialProfileController {
     try {
       const { userId } = req.params;
 
-      const profile = await this.profileRepository.findOne({
+      // Find the user
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+        relations: ['financialProfile'],
+      });
+
+      if (!user) {
+        throw new AppError(404, 'User not found');
+      }
+
+      // Check if profile exists
+      let profile = await this.profileRepository.findOne({
         where: { user: { id: userId } },
         relations: ['user'],
       });
 
+      // If profile doesn't exist, create a default one
       if (!profile) {
-        throw new AppError(404, 'Financial profile not found');
+        logger.info(`Creating default financial profile for user ${userId}`);
+        
+        // Create a default profile
+        profile = new FinancialProfile();
+        profile.user = user;
+        profile.monthlyIncome = 0;
+        profile.incomeFrequency = IncomeFrequency.MONTHLY;
+        profile.monthlyExpenses = 0;
+        profile.totalSavings = 0;
+        profile.totalDebt = 0;
+        profile.investmentBalance = 0;
+        profile.riskTolerance = RiskTolerance.MODERATE;
+        profile.financialGoals = [];
+        profile.monthlyBudget = [];
+
+        // Save the profile
+        await this.profileRepository.save(profile);
+        logger.info(`Default financial profile created for user ${userId}`);
       }
 
       res.json({

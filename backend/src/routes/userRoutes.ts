@@ -2,20 +2,21 @@ import { Router } from 'express';
 import { UserController } from '../controllers/userController';
 import { validateUser } from '../middleware/validation';
 import { authenticate, authorizeUser } from '../middleware/auth';
+import { authLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 const userController = new UserController();
 
-// Public routes
-router.post('/register', validateUser, userController.register.bind(userController));
-router.post('/login', userController.login.bind(userController));
+// Public routes with rate limiting
+router.post('/register', [authLimiter, validateUser], userController.register.bind(userController));
+router.post('/login', [authLimiter], userController.login.bind(userController));
 
 // Protected routes
 router.use(authenticate);
 
 router.get('/profile/:id', authorizeUser(':id'), userController.getProfile.bind(userController));
 router.put('/profile/:id', [validateUser, authorizeUser(':id')], userController.updateProfile.bind(userController));
-router.put('/password/:id', authorizeUser(':id'), userController.changePassword.bind(userController));
+router.put('/password/:id', [authLimiter, authorizeUser(':id')], userController.changePassword.bind(userController));
 router.delete('/account/:id', authorizeUser(':id'), userController.deleteAccount.bind(userController));
 
 // Admin routes
