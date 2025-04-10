@@ -4,13 +4,29 @@ This document outlines the database setup and migration process for the Personal
 
 ## Database Configuration
 
-The application uses SQLite as its database, managed through TypeORM. The connection details are configured through environment variables:
+The application uses two types of databases:
+
+### SQLite Database
+The main application database uses SQLite, managed through TypeORM. The connection details are configured through environment variables:
 
 ```
 DB_TYPE=sqlite
 DB_NAME=financial_assistant.db
 DB_PATH=./financial_assistant.db
 ```
+
+### ChromaDB Configuration
+The vector store database (ChromaDB) uses dynamic port allocation to prevent conflicts:
+
+```
+CHROMA_PORT=8000  # Default port, will try 8001-8004 if 8000 is unavailable
+CHROMA_DB_PATH=http://localhost:${CHROMA_PORT}
+```
+
+The application will automatically:
+1. Try to start ChromaDB on port 8000
+2. If port 8000 is unavailable, try ports 8001-8004
+3. Set the successful port in the environment for other services to use
 
 These can be set in a `.env` file in the backend directory.
 

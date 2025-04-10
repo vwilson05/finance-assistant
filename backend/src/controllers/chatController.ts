@@ -54,7 +54,10 @@ export class ChatController {
       
       // Create user message
       const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.findOne({ where: { id: userId } });
+      const user = await userRepository.findOne({ 
+        where: { id: userId },
+        relations: ['financialProfile']
+      });
       
       if (!user) {
         throw new AppError(404, 'User not found');
@@ -62,23 +65,73 @@ export class ChatController {
       
       const messageRepository = AppDataSource.getRepository(ChatMessage);
       
-      // Save user message
+      // Detect user intent and emotional state
+      const userIntent = await this.detectUserIntent(content);
+      const emotionalState = await this.detectEmotionalState(content);
+      
+      // Save user message with enhanced context
       const userMessage = messageRepository.create({
         user,
         content,
-        role: role || MessageRole.USER
+        role: role || MessageRole.USER,
+        context: {
+          userIntent,
+          emotionalState,
+          financialMetrics: user.financialProfile ? [
+            { metric: 'riskTolerance', value: user.financialProfile.riskTolerance },
+            { metric: 'investmentHorizon', value: user.financialProfile.investmentHorizon },
+            { metric: 'currentSavings', value: user.financialProfile.currentSavings }
+          ] : undefined
+        }
       });
       
       await messageRepository.save(userMessage);
       
-      // Generate AI response
+      // Add user's message to AI context
+      await aiService.addFinancialContext(content, {
+        type: 'user_message',
+        userId: user.id,
+        timestamp: new Date().toISOString(),
+        importance: 'medium',
+        userIntent,
+        emotionalState
+      });
+      
+      // Add user's financial context to AI service if available
+      if (user.financialProfile) {
+        await aiService.addFinancialContext(
+          JSON.stringify(user.financialProfile),
+          {
+            type: 'financial_profile',
+            userId: user.id,
+            timestamp: new Date().toISOString(),
+            importance: 'high',
+            userName: user.name || 'there'
+          }
+        );
+      }
+      
+      // Generate AI response with enhanced context
       const aiResponse = await aiService.generateResponse(content, user);
       
-      // Save AI response
+      // Add AI response to context
+      await aiService.addFinancialContext(aiResponse, {
+        type: 'ai_response',
+        userId: user.id,
+        timestamp: new Date().toISOString(),
+        importance: 'medium'
+      });
+      
+      // Save AI response with metadata
       const assistantMessage = messageRepository.create({
         user,
         content: aiResponse,
-        role: MessageRole.ASSISTANT
+        role: MessageRole.ASSISTANT,
+        metadata: {
+          tokens: 0, // TODO: Implement token counting
+          processingTime: 0, // TODO: Implement processing time tracking
+          model: 'ollama-tinyllama'
+        }
       });
       
       await messageRepository.save(assistantMessage);
@@ -90,6 +143,48 @@ export class ChatController {
     } catch (error) {
       next(error);
     }
+  }
+
+  private async detectUserIntent(content: string): Promise<string> {
+    // Simple intent detection based on keywords
+    const contentLower = content.toLowerCase();
+    if (contentLower.includes('invest') || contentLower.includes('stock') || contentLower.includes('market')) {
+      return 'investment_advice';
+    } else if (contentLower.includes('save') || contentLower.includes('budget') || contentLower.includes('spend')) {
+      return 'savings_advice';
+    } else if (contentLower.includes('retire') || contentLower.includes('future') || contentLower.includes('plan')) {
+      return 'retirement_planning';
+    } else if (contentLower.includes('debt') || contentLower.includes('loan') || contentLower.includes('credit')) {
+      return 'debt_management';
+    } else if (contentLower.includes('tax') || contentLower.includes('deduct') || contentLower.includes('refund')) {
+      return 'tax_planning';
+    } else if (contentLower.includes('insurance') || contentLower.includes('coverage') || contentLower.includes('policy')) {
+      return 'insurance_advice';
+    } else if (contentLower.includes('goal') || contentLower.includes('target') || contentLower.includes('aim')) {
+      return 'goal_setting';
+    } else {
+      return 'general_advice';
+    }
+  }
+  
+  private async detectEmotionalState(content: string): Promise<string> {
+    // Simple emotional state detection based on keywords
+    const contentLower = content.toLowerCase();
+    
+    // Positive emotions
+    if (contentLower.includes('happy') || contentLower.includes('excited') || contentLower.includes('great') || 
+        contentLower.includes('thank') || contentLower.includes('appreciate')) {
+      return 'positive';
+    }
+    
+    // Negative emotions
+    if (contentLower.includes('worried') || contentLower.includes('concerned') || contentLower.includes('anxious') || 
+        contentLower.includes('stress') || contentLower.includes('frustrated') || contentLower.includes('angry')) {
+      return 'negative';
+    }
+    
+    // Neutral emotions
+    return 'neutral';
   }
 
   async getFinancialAdvice(req: Request, res: Response, next: NextFunction) {

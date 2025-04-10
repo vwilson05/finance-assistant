@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from './User';
 
 export enum MessageRole {
@@ -12,30 +12,33 @@ export class ChatMessage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, user => user.messages)
+  @JoinColumn()
   user: User;
-
-  @Column({
-    type: 'varchar',
-    enum: MessageRole
-  })
-  role: MessageRole;
 
   @Column('text')
   content: string;
 
+  @Column({
+    type: 'varchar',
+    enum: MessageRole,
+    default: MessageRole.USER
+  })
+  role: MessageRole;
+
   @Column('simple-json', { nullable: true })
-  context: {
+  context?: {
     relatedStrategy?: string;
     financialMetrics?: {
       metric: string;
       value: number;
     }[];
     userIntent?: string;
+    emotionalState?: string;
   };
 
   @Column('simple-json', { nullable: true })
-  metadata: {
+  metadata?: {
     tokens: number;
     processingTime: number;
     model: string;

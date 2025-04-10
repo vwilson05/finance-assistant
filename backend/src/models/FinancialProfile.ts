@@ -45,12 +45,52 @@ export class FinancialProfile {
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   investmentBalance: number;
 
-  @Column({
-    type: 'varchar',
-    enum: RiskTolerance,
-    default: RiskTolerance.MODERATE
-  })
-  riskTolerance: RiskTolerance;
+  @Column('float')
+  riskTolerance: number;
+
+  @Column('int')
+  investmentHorizon: number;
+
+  @Column('float')
+  currentSavings: number;
+
+  @Column('json')
+  income: {
+    salary: number;
+    other: number;
+  };
+
+  @Column('json')
+  expenses: {
+    housing: number;
+    transportation: number;
+    food: number;
+    utilities: number;
+    other: number;
+  };
+
+  @Column('json')
+  investments: {
+    stocks: number;
+    bonds: number;
+    realEstate: number;
+    other: number;
+  };
+
+  @Column('json')
+  debt: {
+    creditCards: number;
+    loans: number;
+    mortgage: number;
+    other: number;
+  };
+
+  @Column('json')
+  goals: {
+    shortTerm: string[];
+    mediumTerm: string[];
+    longTerm: string[];
+  };
 
   @Column('simple-json', { nullable: true })
   financialGoals: {

@@ -30,13 +30,19 @@ Expected outcome:
 Application runs correctly after refactoring.
 Streamlined file structure and naming conventions for React components.
 Removal of duplicate functionalities between configuration files.
+
 Directive: "Update scripts and configurations to reflect restructured file paths, remove redundancies from any other files, adjust start.sh, honcho.yml to match file structure, and update documentation in '/docs/' to match updated files"
 Task:
 Modify start.sh and honcho.yml and other scripts to align with the new backend structure.
 Update paths in any configuration files to correspond with the revised file paths.
 Ensure all links are working and pointing to the correct files.
+Implement dynamic port allocation for ChromaDB to prevent startup conflicts.
+Update .gitignore to properly exclude sensitive and generated files.
 Expected Outcome:
 Scripts and configurations are updated to accommodate refactored file paths.
+ChromaDB starts reliably on an available port.
+Sensitive and generated files are properly excluded from version control.
+
 Directive: "Update all project documentation in '/docs/' to reflect changes to project structure, delete new_feature.md."
 Task:
 Update architecture and database schema diagrams if modified.

@@ -23,6 +23,12 @@ export const config = {
         ollamaModel: process.env.OLLAMA_MODEL || 'tinyllama'
     },
 
+    // Vector store configuration
+    vectorStore: {
+        url: process.env.VECTOR_STORE_URL || 'http://localhost:8000',
+        collectionName: process.env.VECTOR_STORE_COLLECTION || 'financial_knowledge'
+    },
+
     // Logging configuration
     logging: {
         level: process.env.LOG_LEVEL || 'info'

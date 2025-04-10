@@ -78,6 +78,8 @@ The project follows a modern full-stack architecture with clear separation betwe
 | AD-005      | Implement local AI with Ollama and ChromaDB            | [Date]  | Ensures privacy and reduces dependency on external services |
 | AD-006      | Implement vector store for financial context           | [Date]  | Enables AI to understand and process financial data        |
 | AD-007      | Create a comprehensive user flow for financial planning| [Date]  | Provides a structured approach to financial planning       |
+| AD-008      | Implement dynamic port allocation for ChromaDB         | [Date]  | Ensures reliable startup and prevents port conflicts        |
+| AD-009      | Comprehensive .gitignore rules                         | [Date]  | Protects sensitive data and excludes generated files       |
 
 ## Technology Stack
 - **Frontend**: React, TypeScript, Material-UI, React Query, Axios

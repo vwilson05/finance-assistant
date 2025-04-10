@@ -30,7 +30,8 @@ class AIService {
         await this.coreAIService.addFinancialContext(profileText, {
           type: 'financial_profile',
           userId: user.id,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          importance: 'high'
         });
       }
 
@@ -61,6 +62,18 @@ class AIService {
       return await this.coreAIService.getFinancialAdvice(query);
     } catch (error) {
       console.error('Error generating financial advice:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add financial context to the AI service
+   */
+  async addFinancialContext(text: string, metadata: Record<string, any>): Promise<void> {
+    try {
+      await this.coreAIService.addFinancialContext(text, metadata);
+    } catch (error) {
+      console.error('Error adding financial context:', error);
       throw error;
     }
   }
