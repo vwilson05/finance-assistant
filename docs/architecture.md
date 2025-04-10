@@ -39,6 +39,7 @@ The application follows a comprehensive user flow that is supported by the syste
 - **Scalability:** Allow future integration with financial institutions and real-time data feeds.
 - **Maintainability:** Ensure clear code structure and extensive documentation for continuous improvement.
 - **Security:** Protect sensitive financial data with robust encryption and authentication mechanisms.
+- **Personalization:** Provide tailored financial advice based on user preferences, conversation history, and emotional state.
 
 ## Core Components
 - **Frontend:** React-based responsive web interface featuring a modern, clean design with light/dark mode.
@@ -47,6 +48,7 @@ The application follows a comprehensive user flow that is supported by the syste
 - **Chatbot Advisor:** An interactive module allowing users to ask questions like "Should I sell my real estate holdings?" and receive data-driven responses.
 - **Database:** SQLite storage of user data, financial profiles, investment accounts, goals, and plan history.
 - **Vector Store:** ChromaDB for storing and retrieving financial context and embeddings.
+- **Migration System:** TypeORM-based migration system for managing database schema changes.
 
 ## Project Structure
 The project follows a modern full-stack architecture with clear separation between frontend and backend:
@@ -67,6 +69,8 @@ The project follows a modern full-stack architecture with clear separation betwe
 - **Middleware**: Authentication, validation, and error handling
 - **Config**: Database and general configuration
 - **Utils**: Password hashing, JWT, and logging utilities
+- **Migrations**: TypeORM migration files for database schema changes
+- **Types**: TypeScript type definitions for configuration and data structures
 
 ## Key Architectural Decisions
 | Decision ID | Description                                            | Date    | Rationale                                                  |
@@ -80,6 +84,9 @@ The project follows a modern full-stack architecture with clear separation betwe
 | AD-007      | Create a comprehensive user flow for financial planning| [Date]  | Provides a structured approach to financial planning       |
 | AD-008      | Implement dynamic port allocation for ChromaDB         | [Date]  | Ensures reliable startup and prevents port conflicts        |
 | AD-009      | Comprehensive .gitignore rules                         | [Date]  | Protects sensitive data and excludes generated files       |
+| AD-010      | Implement TypeORM migrations for database schema changes| [Date]  | Ensures reliable database schema evolution                 |
+| AD-011      | Add user intent detection and emotional state analysis | [Date]  | Improves AI personalization and response quality           |
+| AD-012      | Store conversation context with metadata               | [Date]  | Enables more personalized and context-aware responses      |
 
 ## Technology Stack
 - **Frontend**: React, TypeScript, Material-UI, React Query, Axios

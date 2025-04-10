@@ -14,11 +14,13 @@ The Financial Assistant application uses SQLite as its database, managed through
   - `password` (String, Hashed)
   - `firstName` (String)
   - `lastName` (String)
+  - `name` (String)
   - `dateOfBirth` (Date)
   - `createdAt` (Timestamp)
   - `updatedAt` (Timestamp)
 - **Relationships**:
   - One-to-One with FinancialProfile
+  - One-to-Many with ChatMessage
 
 ### FinancialProfile
 - **Table**: `financial_profiles`
@@ -29,6 +31,7 @@ The Financial Assistant application uses SQLite as its database, managed through
   - `monthlyIncome` (Decimal)
   - `incomeFrequency` (Enum: weekly, biweekly, monthly, annually)
   - `monthlyExpenses` (Decimal)
+  - `currentSavings` (Decimal)
   - `totalSavings` (Decimal)
   - `totalDebt` (Decimal)
   - `investmentBalance` (Decimal)
@@ -133,7 +136,8 @@ The Financial Assistant application uses SQLite as its database, managed through
       "value": "number"
     }
   ],
-  "userIntent": "string?"
+  "userIntent": "string?",
+  "emotionalState": "string?"
 }
 ```
 

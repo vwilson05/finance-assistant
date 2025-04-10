@@ -57,21 +57,27 @@ npm run typeorm migration:create -- -n MigrationName
 
 This will generate a new migration file in the `src/migrations` directory.
 
-### Applying Migrations
+### Running Migrations
 
-To apply all pending migrations:
+To run all pending migrations, use the provided script:
 
 ```bash
 cd backend
-npm run typeorm migration:run
+npm run migrate
 ```
+
+This script will:
+1. Initialize the database connection
+2. Run all pending migrations
+3. Log the results of the migration process
+4. Close the database connection
 
 ### Migration Commands
 
 Common TypeORM migration commands:
 
 - `npm run typeorm migration:create -- -n MigrationName`: Create a new migration
-- `npm run typeorm migration:run`: Apply all pending migrations
+- `npm run migrate`: Run all pending migrations
 - `npm run typeorm migration:revert`: Revert the last migration
 - `npm run typeorm migration:show`: Show all migrations and their status
 
@@ -90,7 +96,7 @@ For detailed information about each model, see [database_schema.md](database_sch
 
 1. Make changes to the models in `src/models/`
 2. Create a new migration
-3. Apply the migration
+3. Apply the migration using `npm run migrate`
 4. Test the changes
 
 ## Troubleshooting
@@ -100,6 +106,7 @@ For detailed information about each model, see [database_schema.md](database_sch
 1. **Migration fails to apply**: Check that the database exists and the connection details are correct
 2. **TypeORM can't find models**: Ensure that the models are properly exported and imported
 3. **Database connection errors**: Verify that SQLite is properly configured
+4. **Column not found errors**: Make sure you've run all migrations after changing the model
 
 ### Resetting the Database
 
