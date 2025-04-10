@@ -5,6 +5,7 @@ import { FinancialProfile } from '../models/FinancialProfile';
 import { Strategy } from '../models/Strategy';
 import { ChatMessage } from '../models/ChatMessage';
 import { config } from './index';
+import path from 'path';
 
 // Database configuration with security best practices
 export const AppDataSource = new DataSource({
@@ -13,8 +14,9 @@ export const AppDataSource = new DataSource({
   synchronize: false, // Disable auto-synchronization in all environments
   logging: config.nodeEnv === 'development',
   entities: [User, FinancialProfile, Strategy, ChatMessage],
-  migrations: ['src/migrations/**/*.ts'],
-  subscribers: ['src/subscribers/**/*.ts'],
+  migrations: [path.join(__dirname, '../migrations/*.ts')],
+  subscribers: [path.join(__dirname, '../subscribers/**/*.ts')],
+  migrationsRun: true, // Automatically run migrations on startup
   // Enable SQLite security features
   extra: {
     // Enable WAL mode for better concurrency
@@ -36,12 +38,9 @@ export const setupDatabase = async () => {
 
     // Run migrations instead of auto-synchronization
     if (config.nodeEnv !== 'production') {
-      const pendingMigrations = await AppDataSource.showMigrations();
-      if (pendingMigrations) {
-        logger.info('Running pending migrations...');
-        await AppDataSource.runMigrations();
-        logger.info('Database migrations applied');
-      }
+      logger.info('Running migrations...');
+      await AppDataSource.runMigrations();
+      logger.info('Migrations completed successfully');
     }
 
     // Verify foreign key constraints

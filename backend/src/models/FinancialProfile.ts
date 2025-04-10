@@ -20,10 +20,10 @@ export class FinancialProfile {
   id: string;
 
   @OneToOne(() => User, user => user.financialProfile)
-  @JoinColumn()
+  @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
   monthlyIncome: number;
 
   @Column({
@@ -33,34 +33,38 @@ export class FinancialProfile {
   })
   incomeFrequency: IncomeFrequency;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
   monthlyExpenses: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
   totalSavings: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
   totalDebt: number;
 
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   investmentBalance: number;
 
-  @Column('float')
-  riskTolerance: number;
+  @Column({
+    type: 'varchar',
+    enum: RiskTolerance,
+    default: RiskTolerance.MODERATE
+  })
+  riskTolerance: RiskTolerance;
 
-  @Column('int')
+  @Column('int', { default: 10 })
   investmentHorizon: number;
 
-  @Column('float')
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
   currentSavings: number;
 
-  @Column('json')
+  @Column('json', { default: '{"salary": 0, "other": 0}' })
   income: {
     salary: number;
     other: number;
   };
 
-  @Column('json')
+  @Column('json', { default: '{"housing": 0, "transportation": 0, "food": 0, "utilities": 0, "other": 0}' })
   expenses: {
     housing: number;
     transportation: number;
@@ -69,7 +73,7 @@ export class FinancialProfile {
     other: number;
   };
 
-  @Column('json')
+  @Column('json', { default: '{"stocks": 0, "bonds": 0, "realEstate": 0, "other": 0}' })
   investments: {
     stocks: number;
     bonds: number;
@@ -77,7 +81,7 @@ export class FinancialProfile {
     other: number;
   };
 
-  @Column('json')
+  @Column('json', { default: '{"creditCards": 0, "loans": 0, "mortgage": 0, "other": 0}' })
   debt: {
     creditCards: number;
     loans: number;
@@ -85,14 +89,14 @@ export class FinancialProfile {
     other: number;
   };
 
-  @Column('json')
+  @Column('json', { default: '{"shortTerm": [], "mediumTerm": [], "longTerm": []}' })
   goals: {
     shortTerm: string[];
     mediumTerm: string[];
     longTerm: string[];
   };
 
-  @Column('simple-json', { nullable: true })
+  @Column('simple-json', { nullable: true, default: '[]' })
   financialGoals: {
     type: string;
     targetAmount: number;
@@ -100,7 +104,7 @@ export class FinancialProfile {
     priority: number;
   }[];
 
-  @Column('simple-json', { nullable: true })
+  @Column('simple-json', { nullable: true, default: '[]' })
   monthlyBudget: {
     category: string;
     amount: number;

@@ -1,11 +1,12 @@
 import dotenv from 'dotenv';
+import { Config } from '../types/config';
 
 // Load environment variables
 dotenv.config();
 
-export const config = {
+export const config: Config = {
     // Server configuration
-    port: process.env.PORT || 3001,
+    port: parseInt(process.env.PORT || '3001', 10),
     nodeEnv: process.env.NODE_ENV || 'development',
 
     // Database configuration

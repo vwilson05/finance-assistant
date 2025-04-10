@@ -25,7 +25,10 @@ export class User {
   @Column({ type: 'date' })
   dateOfBirth: Date;
 
-  @OneToOne(() => FinancialProfile, financialProfile => financialProfile.user, { cascade: true })
+  @OneToOne(() => FinancialProfile, financialProfile => financialProfile.user, { 
+    cascade: true,
+    eager: true // This will automatically load the financial profile
+  })
   financialProfile: FinancialProfile;
 
   @OneToMany(() => ChatMessage, message => message.user)
