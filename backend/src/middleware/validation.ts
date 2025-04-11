@@ -1,19 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
-import Joi from 'joi';
 import { AppError } from './errorHandler';
 import { IncomeFrequency, RiskTolerance } from '../models/FinancialProfile';
 import { StrategyType, StrategyStatus } from '../models/Strategy';
 import { MessageRole } from '../models/ChatMessage';
 import { z } from 'zod';
 
-const userSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().min(8).required(),
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  dateOfBirth: Joi.date().iso().required(),
+// User validation schema
+const userSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  firstName: z.string(),
+  lastName: z.string(),
+  dateOfBirth: z.string().datetime(),
 });
 
+// Financial profile validation schema
 const financialProfileSchema = z.object({
   monthlyIncome: z.number().positive(),
   monthlyExpenses: z.number().nonnegative(),
@@ -36,79 +37,73 @@ const financialProfileSchema = z.object({
   })).optional(),
 });
 
-const strategySchema = Joi.object({
-  type: Joi.string().valid(...Object.values(StrategyType)).required(),
-  name: Joi.string().required(),
-  description: Joi.string().required(),
-  recommendations: Joi.array().items(
-    Joi.object({
-      action: Joi.string().required(),
-      priority: Joi.number().min(1).max(5).required(),
-      timeframe: Joi.string().required(),
-      expectedImpact: Joi.string().required(),
+// Strategy validation schema
+const strategySchema = z.object({
+  type: z.enum(Object.values(StrategyType) as [string, ...string[]]),
+  name: z.string(),
+  description: z.string(),
+  recommendations: z.array(
+    z.object({
+      action: z.string(),
+      priority: z.number().min(1).max(5),
+      timeframe: z.string(),
+      expectedImpact: z.string(),
     })
   ),
-  milestones: Joi.array().items(
-    Joi.object({
-      description: Joi.string().required(),
-      targetDate: Joi.date().iso().required(),
-      completed: Joi.boolean().required(),
+  milestones: z.array(
+    z.object({
+      description: z.string(),
+      targetDate: z.string().datetime(),
+      completed: z.boolean(),
     })
   ),
-  targetAmount: Joi.number().positive().optional(),
-  targetDate: Joi.date().iso().optional(),
-  status: Joi.string().valid(...Object.values(StrategyStatus)).required(),
-  progress: Joi.object({
-    currentAmount: Joi.number().min(0).required(),
-    lastUpdated: Joi.date().iso().required(),
-    notes: Joi.string().optional(),
+  targetAmount: z.number().positive().optional(),
+  targetDate: z.string().datetime().optional(),
+  status: z.enum(Object.values(StrategyStatus) as [string, ...string[]]),
+  progress: z.object({
+    currentAmount: z.number().min(0),
+    lastUpdated: z.string().datetime(),
+    notes: z.string().optional(),
   }).optional(),
 });
 
-const messageSchema = Joi.object({
-  content: Joi.string().required(),
-  role: Joi.string().valid(...Object.values(MessageRole)).required(),
-  context: Joi.object({
-    relatedStrategy: Joi.string().uuid().optional(),
-    financialMetrics: Joi.array().items(
-      Joi.object({
-        metric: Joi.string().required(),
-        value: Joi.number().required(),
+// Message validation schema
+const messageSchema = z.object({
+  content: z.string(),
+  role: z.enum(Object.values(MessageRole) as [string, ...string[]]),
+  context: z.object({
+    relatedStrategy: z.string().uuid().optional(),
+    financialMetrics: z.array(
+      z.object({
+        metric: z.string(),
+        value: z.number(),
       })
     ).optional(),
-    userIntent: Joi.string().optional(),
+    userIntent: z.string().optional(),
   }).optional(),
 });
 
-const validate = (schema: Joi.ObjectSchema) => {
+// Generic validation middleware
+const validate = (schema: z.ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const { error } = schema.validate(req.body, { abortEarly: false });
-    
-    if (error) {
-      const errorMessage = error.details
-        .map(detail => detail.message)
-        .join(', ');
-      
-      return next(new AppError(400, errorMessage));
+    try {
+      const validatedData = schema.parse(req.body);
+      req.body = validatedData;
+      next();
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessage = error.errors
+          .map(err => `${err.path.join('.')}: ${err.message}`)
+          .join(', ');
+        return next(new AppError(400, errorMessage));
+      }
+      next(error);
     }
-    
-    next();
   };
 };
 
 export const validateUser = validate(userSchema);
-export const validateFinancialProfile = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const validatedData = await financialProfileSchema.parseAsync(req.body);
-    req.body = validatedData;
-    next();
-  } catch (error: unknown) {
-    if (error instanceof z.ZodError) {
-      next(new AppError(400, 'Invalid financial profile data', error.errors));
-    } else {
-      next(new AppError(500, 'Internal server error during validation'));
-    }
-  }
-};
+export const validateFinancialProfile = validate(financialProfileSchema);
 export const validateStrategy = validate(strategySchema);
-export const validateMessage = validate(messageSchema); 
+export const validateMessage = validate(messageSchema);
+export const validateRequest = validate; 

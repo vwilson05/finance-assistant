@@ -44,6 +44,13 @@ export class ChatMessage {
     model: string;
   };
 
+  @Column('simple-json', { nullable: true })
+  functionCall?: {
+    name: string;
+    arguments: string;
+    result?: any;
+  };
+
   @CreateDateColumn()
   createdAt: Date;
 } 

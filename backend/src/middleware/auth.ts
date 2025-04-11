@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from './errorHandler';
 import { verifyToken, TokenPayload } from '../utils/jwt';
-import { AppDataSource } from '../config/database';
+import { AppDataSource } from '../data-source';
 import { User } from '../models/User';
 import { config } from '../config';
 

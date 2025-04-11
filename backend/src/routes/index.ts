@@ -4,6 +4,7 @@ import { financialProfileRoutes } from './financialProfileRoutes';
 import { strategyRoutes } from './strategyRoutes';
 import { chatRoutes } from './chatRoutes';
 import aiRoutes from './aiRoutes';
+import functionRoutes from './functionRoutes';
 
 export const setupRoutes = (app: Express) => {
   // Health check endpoint
@@ -17,4 +18,5 @@ export const setupRoutes = (app: Express) => {
   app.use('/api/strategies', strategyRoutes);
   app.use('/api/chat', chatRoutes);
   app.use('/api/ai', aiRoutes);
+  app.use('/api/chat/function', functionRoutes);
 }; 

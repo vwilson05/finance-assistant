@@ -7,13 +7,10 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('varchar')
-  name: string;
-
-  @Column('varchar', { unique: true })
+  @Column({ unique: true })
   email: string;
 
-  @Column('varchar')
+  @Column()
   password: string;
 
   @Column()
@@ -25,10 +22,7 @@ export class User {
   @Column({ type: 'date' })
   dateOfBirth: Date;
 
-  @OneToOne(() => FinancialProfile, financialProfile => financialProfile.user, { 
-    cascade: true,
-    eager: true // This will automatically load the financial profile
-  })
+  @OneToOne(() => FinancialProfile, profile => profile.user, { eager: true })
   financialProfile: FinancialProfile;
 
   @OneToMany(() => ChatMessage, message => message.user)

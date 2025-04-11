@@ -1,8 +1,33 @@
 import { User } from '../models/User';
 import { config } from '../config';
 import { AIService as CoreAIService } from './ai/aiService';
+import { FinancialProfile } from '../models/FinancialProfile';
 
-class AIService {
+interface AIMessage {
+  role: string;
+  content: string;
+  context?: {
+    financialProfile?: FinancialProfile;
+    userIntent?: any;
+    emotionalState?: any;
+  };
+}
+
+interface AIResponse {
+  content: string;
+  usage?: {
+    totalTokens: number;
+    processingTime: number;
+  };
+  model?: string;
+}
+
+interface FunctionCallResult {
+  message: AIResponse;
+  functionResult: any;
+}
+
+export class AIService {
   private coreAIService: CoreAIService;
 
   constructor() {
@@ -76,6 +101,35 @@ class AIService {
       console.error('Error adding financial context:', error);
       throw error;
     }
+  }
+
+  async detectUserIntent(content: string): Promise<any> {
+    // TODO: Implement intent detection logic
+    return { type: 'general', confidence: 0.8 };
+  }
+
+  async detectEmotionalState(content: string): Promise<any> {
+    // TODO: Implement emotional state detection logic
+    return { emotion: 'neutral', intensity: 0.5 };
+  }
+
+  async addMessage(message: AIMessage): Promise<void> {
+    // TODO: Implement message context management
+  }
+
+  async generateResponseWithFunctionCall(functionCall: any): Promise<FunctionCallResult> {
+    // TODO: Implement function call handling
+    return {
+      message: {
+        content: 'Function call processed.',
+        usage: {
+          totalTokens: 0,
+          processingTime: 0
+        },
+        model: 'gpt-4'
+      },
+      functionResult: {}
+    };
   }
 }
 

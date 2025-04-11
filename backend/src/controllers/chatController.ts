@@ -1,229 +1,251 @@
-import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../middleware/errorHandler';
-import { AppDataSource } from '../config/database';
-import { ChatMessage, MessageRole } from '../models/ChatMessage';
-import { User } from '../models/User';
+import { Request, Response } from 'express';
+import { MessageRole } from '../models/ChatMessage';
+import { AuthService } from '../services/authService';
+import { FinancialProfileService } from '../services/financialProfileService';
 import { aiService } from '../services/aiService';
+import { ChatMessageRepository } from '../repositories/chatMessageRepository';
+import { AppError } from '../middleware/errorHandler';
+import { logger } from '../utils/logger';
+import { AIResponse } from '../types/ai';
 
 export class ChatController {
-  async getChatHistory(req: Request, res: Response, next: NextFunction) {
+  constructor(
+    private authService: AuthService,
+    private financialProfileService: FinancialProfileService,
+    private chatMessageRepository: ChatMessageRepository
+  ) {}
+
+  private shouldUseFunctionCall(content: string, userIntent: string): boolean {
+    const functionCallTriggers = [
+      'update_profile',
+      'calculate_metrics',
+      'generate_report'
+    ];
+    return functionCallTriggers.includes(userIntent);
+  }
+
+  private determineFunctionCall(content: string, userIntent: string) {
+    return {
+      name: userIntent,
+      arguments: { content }
+    };
+  }
+
+  async getChatHistory(req: Request, res: Response) {
     try {
-      const userId = req.params.userId;
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.findOne({ where: { id: userId } });
-      
+      const user = await this.authService.authenticateUser(req);
       if (!user) {
-        throw new AppError(404, 'User not found');
+        throw new AppError(401, 'Unauthorized');
+      }
+
+      const messages = await this.chatMessageRepository.getUserMessages(user.id);
+      return res.json({
+        success: true,
+        messages
+      });
+    } catch (error) {
+      logger.error('Error in getChatHistory:', error);
+      
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ 
+          success: false,
+          error: error.message 
+        });
       }
       
-      const messageRepository = AppDataSource.getRepository(ChatMessage);
-      const messages = await messageRepository.find({
-        where: { user: { id: userId } },
-        order: { createdAt: 'ASC' }
+      return res.status(500).json({ 
+        success: false,
+        error: 'Failed to retrieve chat history' 
       });
-      
-      res.status(200).json({ messages });
-    } catch (error) {
-      next(error);
     }
   }
 
-  async getThread(req: Request, res: Response, next: NextFunction) {
+  async getThread(req: Request, res: Response) {
     try {
-      const threadId = req.params.threadId;
-      const messageRepository = AppDataSource.getRepository(ChatMessage);
-      const messages = await messageRepository.find({
-        where: { id: threadId },
-        order: { createdAt: 'ASC' }
-      });
+      const { threadId } = req.params;
+      const user = await this.authService.authenticateUser(req);
       
-      res.status(200).json({ messages });
+      if (!user) {
+        throw new AppError(401, 'Unauthorized');
+      }
+
+      const messages = await this.chatMessageRepository.getThreadMessages(threadId, user.id);
+      return res.json({
+        success: true,
+        messages
+      });
     } catch (error) {
-      next(error);
+      logger.error('Error in getThread:', error);
+      
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ 
+          success: false,
+          error: error.message 
+        });
+      }
+      
+      return res.status(500).json({ 
+        success: false,
+        error: 'Failed to retrieve thread' 
+      });
     }
   }
 
-  async sendMessage(req: Request, res: Response, next: NextFunction) {
+  async sendMessage(req: Request, res: Response) {
     try {
-      const { content, role } = req.body;
-      const userId = req.user?.id;
-      
-      if (!userId) {
-        throw new AppError(401, 'User not authenticated');
-      }
-      
-      // Create user message
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.findOne({ 
-        where: { id: userId },
-        relations: ['financialProfile']
-      });
-      
+      const { content, role = MessageRole.USER, enableFunctionCalling = false } = req.body;
+      const user = await this.authService.authenticateUser(req);
+
       if (!user) {
-        throw new AppError(404, 'User not found');
+        throw new AppError(401, 'Unauthorized');
       }
-      
-      const messageRepository = AppDataSource.getRepository(ChatMessage);
-      
-      // Detect user intent and emotional state
-      const userIntent = await this.detectUserIntent(content);
-      const emotionalState = await this.detectEmotionalState(content);
-      
+
+      const financialProfile = await this.financialProfileService.getFinancialProfile(user.id);
+      const userIntent = await this.aiService.detectUserIntent(content);
+      const emotionalState = await this.aiService.detectEmotionalState(content);
+
       // Save user message with enhanced context
-      const userMessage = messageRepository.create({
+      const userMessage = await this.chatMessageRepository.save({
         user,
         content,
-        role: role || MessageRole.USER,
+        role,
         context: {
           userIntent,
           emotionalState,
-          financialMetrics: user.financialProfile ? [
-            { metric: 'riskTolerance', value: user.financialProfile.riskTolerance },
-            { metric: 'investmentHorizon', value: user.financialProfile.investmentHorizon },
-            { metric: 'currentSavings', value: user.financialProfile.currentSavings }
+          financialMetrics: financialProfile ? [
+            { metric: 'netWorth', value: financialProfile.netWorth },
+            { metric: 'monthlyIncome', value: financialProfile.monthlyIncome },
+            { metric: 'monthlyExpenses', value: financialProfile.monthlyExpenses }
           ] : undefined
         }
       });
-      
-      await messageRepository.save(userMessage);
-      
-      // Add user's message to AI context
-      await aiService.addFinancialContext(content, {
-        type: 'user_message',
-        userId: user.id,
-        timestamp: new Date().toISOString(),
-        importance: 'medium',
-        userIntent,
-        emotionalState
-      });
-      
-      // Add user's financial context to AI service if available
-      if (user.financialProfile) {
-        await aiService.addFinancialContext(
-          JSON.stringify(user.financialProfile),
-          {
-            type: 'financial_profile',
-            userId: user.id,
-            timestamp: new Date().toISOString(),
-            importance: 'high',
-            userName: user.name || 'there'
-          }
-        );
-      }
-      
-      // Generate AI response with enhanced context
-      const aiResponse = await aiService.generateResponse(content, user);
-      
-      // Add AI response to context
-      await aiService.addFinancialContext(aiResponse, {
-        type: 'ai_response',
-        userId: user.id,
-        timestamp: new Date().toISOString(),
-        importance: 'medium'
-      });
-      
-      // Save AI response with metadata
-      const assistantMessage = messageRepository.create({
-        user,
-        content: aiResponse,
-        role: MessageRole.ASSISTANT,
-        metadata: {
-          tokens: 0, // TODO: Implement token counting
-          processingTime: 0, // TODO: Implement processing time tracking
-          model: 'ollama-tinyllama'
+
+      // Add user message and financial context to AI service
+      await this.aiService.addMessage({
+        role: MessageRole.USER,
+        content,
+        context: {
+          financialProfile: financialProfile || undefined,
+          userIntent,
+          emotionalState
         }
       });
-      
-      await messageRepository.save(assistantMessage);
-      
-      res.status(200).json({ 
-        message: assistantMessage,
+
+      // Generate AI response
+      let assistantMessage: AIResponse;
+      let functionCall;
+
+      if (enableFunctionCalling && this.shouldUseFunctionCall(content, userIntent)) {
+        functionCall = this.determineFunctionCall(content, userIntent);
+        const response = await this.aiService.generateResponseWithFunctionCall(functionCall);
+        assistantMessage = response;
+        functionCall.result = response.functionResult;
+      } else {
+        const response = await this.aiService.generateResponse(content, user);
+        assistantMessage = typeof response === 'string' ? { content: response } : response;
+      }
+
+      // Save AI response with metadata
+      const savedAssistantMessage = await this.chatMessageRepository.save({
+        user,
+        content: assistantMessage.content,
+        role: MessageRole.ASSISTANT,
+        context: {
+          userIntent,
+          emotionalState
+        },
+        metadata: {
+          tokens: assistantMessage.usage?.totalTokens || 0,
+          processingTime: assistantMessage.usage?.processingTime || 0,
+          model: assistantMessage.model || 'gpt-4'
+        },
+        functionCall
+      });
+
+      return res.json({
+        success: true,
+        assistantMessage: savedAssistantMessage,
         userMessage
       });
     } catch (error) {
-      next(error);
-    }
-  }
-
-  private async detectUserIntent(content: string): Promise<string> {
-    // Simple intent detection based on keywords
-    const contentLower = content.toLowerCase();
-    if (contentLower.includes('invest') || contentLower.includes('stock') || contentLower.includes('market')) {
-      return 'investment_advice';
-    } else if (contentLower.includes('save') || contentLower.includes('budget') || contentLower.includes('spend')) {
-      return 'savings_advice';
-    } else if (contentLower.includes('retire') || contentLower.includes('future') || contentLower.includes('plan')) {
-      return 'retirement_planning';
-    } else if (contentLower.includes('debt') || contentLower.includes('loan') || contentLower.includes('credit')) {
-      return 'debt_management';
-    } else if (contentLower.includes('tax') || contentLower.includes('deduct') || contentLower.includes('refund')) {
-      return 'tax_planning';
-    } else if (contentLower.includes('insurance') || contentLower.includes('coverage') || contentLower.includes('policy')) {
-      return 'insurance_advice';
-    } else if (contentLower.includes('goal') || contentLower.includes('target') || contentLower.includes('aim')) {
-      return 'goal_setting';
-    } else {
-      return 'general_advice';
-    }
-  }
-  
-  private async detectEmotionalState(content: string): Promise<string> {
-    // Simple emotional state detection based on keywords
-    const contentLower = content.toLowerCase();
-    
-    // Positive emotions
-    if (contentLower.includes('happy') || contentLower.includes('excited') || contentLower.includes('great') || 
-        contentLower.includes('thank') || contentLower.includes('appreciate')) {
-      return 'positive';
-    }
-    
-    // Negative emotions
-    if (contentLower.includes('worried') || contentLower.includes('concerned') || contentLower.includes('anxious') || 
-        contentLower.includes('stress') || contentLower.includes('frustrated') || contentLower.includes('angry')) {
-      return 'negative';
-    }
-    
-    // Neutral emotions
-    return 'neutral';
-  }
-
-  async getFinancialAdvice(req: Request, res: Response, next: NextFunction) {
-    try {
-      const userId = req.params.userId;
-      const { query } = req.body;
+      logger.error('Error in sendMessage:', error);
       
-      if (!query) {
-        throw new AppError(400, 'Query is required');
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ 
+          success: false,
+          error: error.message 
+        });
       }
       
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.findOne({ 
-        where: { id: userId },
-        relations: ['financialProfile']
+      return res.status(500).json({ 
+        success: false,
+        error: 'Failed to process message' 
       });
+    }
+  }
+
+  async getFinancialAdvice(req: Request, res: Response) {
+    try {
+      const user = await this.authService.authenticateUser(req);
       
       if (!user) {
-        throw new AppError(404, 'User not found');
+        throw new AppError(401, 'Unauthorized');
+      }
+
+      const financialProfile = await this.financialProfileService.getFinancialProfile(user.id);
+      if (!financialProfile) {
+        throw new AppError(404, 'Financial profile not found');
+      }
+
+      const advice = await this.aiService.generateFinancialAdvice(financialProfile);
+      return res.json({
+        success: true,
+        advice
+      });
+    } catch (error) {
+      logger.error('Error in getFinancialAdvice:', error);
+      
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ 
+          success: false,
+          error: error.message 
+        });
       }
       
-      const advice = await aiService.generateFinancialAdvice(query, user);
-      
-      res.status(200).json({ advice });
-    } catch (error) {
-      next(error);
+      return res.status(500).json({ 
+        success: false,
+        error: 'Failed to generate financial advice' 
+      });
     }
   }
 
-  async clearHistory(req: Request, res: Response, next: NextFunction) {
+  async clearHistory(req: Request, res: Response) {
     try {
-      const userId = req.params.userId;
+      const user = await this.authService.authenticateUser(req);
       
-      const messageRepository = AppDataSource.getRepository(ChatMessage);
-      await messageRepository.delete({ user: { id: userId } });
-      
-      res.status(200).json({ message: 'Chat history cleared successfully' });
+      if (!user) {
+        throw new AppError(401, 'Unauthorized');
+      }
+
+      await this.chatMessageRepository.clearUserHistory(user.id);
+      return res.json({
+        success: true,
+        message: 'Chat history cleared successfully'
+      });
     } catch (error) {
-      next(error);
+      logger.error('Error in clearHistory:', error);
+      
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ 
+          success: false,
+          error: error.message 
+        });
+      }
+      
+      return res.status(500).json({ 
+        success: false,
+        error: 'Failed to clear chat history' 
+      });
     }
   }
 } 
