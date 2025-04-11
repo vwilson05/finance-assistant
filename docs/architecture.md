@@ -50,6 +50,7 @@ The application follows a comprehensive user flow that is supported by the syste
 - **Database:** SQLite storage of user data, financial profiles, investment accounts, goals, and plan history.
 - **Vector Store:** ChromaDB for storing and retrieving financial context and embeddings.
 - **Migration System:** TypeORM-based migration system for managing database schema changes.
+- **OpenAI Integration:** User-specific OpenAI API key management for personalized AI interactions.
 
 ## Project Structure
 The project follows a modern full-stack architecture with clear separation between frontend and backend:
@@ -90,6 +91,7 @@ The project follows a modern full-stack architecture with clear separation betwe
 | AD-012      | Store conversation context with metadata               | [Date]  | Enables more personalized and context-aware responses      |
 | AD-013      | Implement function calling in AI responses             | [Date]  | Enables AI to perform specific actions and data operations |
 | AD-014      | Store function call results in chat history            | [Date]  | Maintains conversation context and action history          |
+| AD-015      | Support user-specific OpenAI API keys                  | [Date]  | Enables personalized AI interactions and usage tracking    |
 
 ## Technology Stack
 - **Frontend**: React, TypeScript, Material-UI, React Query, Axios

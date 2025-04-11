@@ -44,6 +44,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  openaiApiKey?: string;
 }
 
 export interface AuthResponse {
@@ -57,7 +58,7 @@ class AuthService {
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await api.post('/auth/login', credentials);
+      const response = await api.post('/users/login', credentials);
       const { token, user } = response.data;
 
       // Store auth data
@@ -82,7 +83,7 @@ class AuthService {
    */
   async register(data: RegisterData): Promise<AuthResponse> {
     try {
-      const response = await api.post('/auth/register', data);
+      const response = await api.post('/users/register', data);
       const { token, user } = response.data;
 
       // Store auth data

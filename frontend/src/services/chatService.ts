@@ -20,6 +20,11 @@ export interface ChatMessage {
     processingTime: number;
     model: string;
   };
+  functionCall?: {
+    name: string;
+    arguments: string;
+    result?: any;
+  };
 }
 
 // API base URL
@@ -64,13 +69,14 @@ class ChatService {
   }
 
   /**
-   * Send a message to the AI assistant
+   * Send a message to the AI assistant with function calling support
    */
   async sendMessage(content: string): Promise<ChatMessage> {
     try {
       const response = await api.post('/chat/message', { 
         content,
-        role: 'user' as MessageRole
+        role: 'user' as MessageRole,
+        enableFunctionCalling: true
       });
       return response.data.message;
     } catch (error) {
@@ -100,6 +106,19 @@ class ChatService {
       await api.delete(`/chat/history/${DEFAULT_USER_ID}`);
     } catch (error) {
       console.error('Failed to clear chat history:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Execute a function call and get the result
+   */
+  async executeFunctionCall(functionCall: { name: string, arguments: string }): Promise<any> {
+    try {
+      const response = await api.post('/chat/function', functionCall);
+      return response.data.result;
+    } catch (error) {
+      console.error('Failed to execute function call:', error);
       throw error;
     }
   }

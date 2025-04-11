@@ -78,8 +78,53 @@ const Chat: React.FC = () => {
       // Send message to API
       const response = await chatService.sendMessage(userInput);
       
-      // Add assistant response to chat
-      setMessages(prevMessages => [...prevMessages, response]);
+      // Check if the response includes a function call
+      if (response.functionCall) {
+        // Add the assistant message with the function call
+        setMessages(prevMessages => [...prevMessages, response]);
+        
+        // Execute the function call
+        try {
+          const functionResult = await chatService.executeFunctionCall({
+            name: response.functionCall.name,
+            arguments: response.functionCall.arguments
+          });
+          
+          // Update the message with the function result
+          setMessages(prevMessages => {
+            const updatedMessages = [...prevMessages];
+            const lastMessage = updatedMessages[updatedMessages.length - 1];
+            
+            if (lastMessage.functionCall) {
+              lastMessage.functionCall.result = functionResult;
+            }
+            
+            return updatedMessages;
+          });
+          
+          // Send a follow-up message with the function result
+          const followUpResponse = await chatService.sendMessage(
+            `Function ${response.functionCall.name} executed with result: ${JSON.stringify(functionResult)}`
+          );
+          
+          // Add the follow-up response to the chat
+          setMessages(prevMessages => [...prevMessages, followUpResponse]);
+        } catch (functionError) {
+          console.error('Failed to execute function call:', functionError);
+          
+          // Add error message for function call
+          const functionErrorMessage: ChatMessage = {
+            role: 'system',
+            content: `Failed to execute function ${response.functionCall.name}. Please try again later.`,
+            createdAt: new Date(),
+          };
+          
+          setMessages(prevMessages => [...prevMessages, functionErrorMessage]);
+        }
+      } else {
+        // Add assistant response to chat (no function call)
+        setMessages(prevMessages => [...prevMessages, response]);
+      }
     } catch (error) {
       console.error('Failed to send message:', error);
       setError('Failed to send message. Please try again later.');
@@ -154,6 +199,23 @@ const Chat: React.FC = () => {
             >
               <div className="message-content">
                 {message.content}
+                
+                {/* Display function call if present */}
+                {message.functionCall && (
+                  <div className="function-call">
+                    <div className="function-name">
+                      Function: {message.functionCall.name}
+                    </div>
+                    <div className="function-arguments">
+                      Arguments: {message.functionCall.arguments}
+                    </div>
+                    {message.functionCall.result && (
+                      <div className="function-result">
+                        Result: {JSON.stringify(message.functionCall.result)}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               {message.createdAt && (
                 <div className="message-timestamp">

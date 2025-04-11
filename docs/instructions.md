@@ -41,6 +41,7 @@ This document outlines how to fully implement and test each major user flow in t
 
 ### Objectives:
 - User can enter and save profile information via the UI
+- User can store OpenAI API key for their account.
 - Profile data is stored correctly in SQLite
 - App retrieves and displays user-specific profile data on page load
 

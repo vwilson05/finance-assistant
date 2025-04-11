@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../utils/AuthContext';
 import './Register.css';
 
 const Register: React.FC = () => {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
+    dateOfBirth: '',
     agreeToTerms: false
   });
   
@@ -18,6 +23,7 @@ const Register: React.FC = () => {
     email?: string;
     password?: string;
     confirmPassword?: string;
+    dateOfBirth?: string;
     agreeToTerms?: string;
     general?: string;
   }>({});
@@ -47,6 +53,7 @@ const Register: React.FC = () => {
       email?: string;
       password?: string;
       confirmPassword?: string;
+      dateOfBirth?: string;
       agreeToTerms?: string;
       general?: string;
     } = {};
@@ -77,6 +84,10 @@ const Register: React.FC = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
     
+    if (!formData.dateOfBirth) {
+      newErrors.dateOfBirth = 'Date of birth is required';
+    }
+    
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
@@ -95,18 +106,19 @@ const Register: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In a real app, this would be an API call to register
-      console.log('Registration attempt with:', formData);
+      await register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        dateOfBirth: formData.dateOfBirth
+      });
       
       // Redirect to dashboard on success
-      // In a real app, this would use React Router's navigate
-      window.location.href = '/dashboard';
+      navigate('/dashboard');
     } catch (error) {
       setErrors({
-        general: 'Registration failed. Please try again later.'
+        general: error instanceof Error ? error.message : 'Registration failed. Please try again later.'
       });
     } finally {
       setIsLoading(false);
@@ -178,6 +190,22 @@ const Register: React.FC = () => {
             />
             {errors.email && (
               <div className="error-message">{errors.email}</div>
+            )}
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="dateOfBirth">Date of Birth</label>
+            <input
+              type="date"
+              id="dateOfBirth"
+              name="dateOfBirth"
+              value={formData.dateOfBirth}
+              onChange={handleChange}
+              className={errors.dateOfBirth ? 'error' : ''}
+              disabled={isLoading}
+            />
+            {errors.dateOfBirth && (
+              <div className="error-message">{errors.dateOfBirth}</div>
             )}
           </div>
           

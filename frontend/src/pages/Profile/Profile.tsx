@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../utils/AuthContext';
 import './Profile.css';
 
 // Mock user data
@@ -20,14 +21,41 @@ const mockUserData = {
 };
 
 const Profile: React.FC = () => {
+  const { setOpenAIKey, hasOpenAIKey } = useAuth();
   const [activeTab, setActiveTab] = useState<'personal' | 'goals' | 'preferences'>('personal');
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(mockUserData);
+  const [openAIKey, setOpenAIKeyInput] = useState('');
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
+  const [isSavingKey, setIsSavingKey] = useState(false);
 
   const handleSave = () => {
     setIsEditing(false);
     // In a real app, this would save to the backend
     console.log('Saving user data:', userData);
+  };
+
+  const handleSaveOpenAIKey = async () => {
+    if (!openAIKey.trim()) {
+      setApiKeyError('OpenAI API key is required');
+      return;
+    }
+
+    setIsSavingKey(true);
+    setApiKeyError(null);
+
+    try {
+      const success = await setOpenAIKey(openAIKey);
+      if (success) {
+        setOpenAIKeyInput('');
+      } else {
+        setApiKeyError('Failed to save OpenAI API key. Please try again.');
+      }
+    } catch (error) {
+      setApiKeyError('An error occurred while saving your API key. Please try again.');
+    } finally {
+      setIsSavingKey(false);
+    }
   };
 
   const calculateProgress = (current: number, target: number) => {
@@ -120,6 +148,42 @@ const Profile: React.FC = () => {
                 ) : (
                   <p>{userData.riskTolerance}</p>
                 )}
+              </div>
+
+              <div className="info-group">
+                <label>OpenAI API Key</label>
+                <div className="api-key-section">
+                  {hasOpenAIKey ? (
+                    <div className="api-key-status">
+                      <span className="status-indicator success"></span>
+                      <span>API key is configured</span>
+                    </div>
+                  ) : (
+                    <div className="api-key-input">
+                      <input
+                        type="password"
+                        value={openAIKey}
+                        onChange={(e) => setOpenAIKeyInput(e.target.value)}
+                        placeholder="Enter your OpenAI API key"
+                        disabled={isSavingKey}
+                      />
+                      <button
+                        className="save-key-button"
+                        onClick={handleSaveOpenAIKey}
+                        disabled={isSavingKey || !openAIKey.trim()}
+                      >
+                        {isSavingKey ? 'Saving...' : 'Save API Key'}
+                      </button>
+                    </div>
+                  )}
+                  {apiKeyError && (
+                    <div className="error-message">{apiKeyError}</div>
+                  )}
+                  <p className="api-key-help">
+                    Your OpenAI API key is required to use AI-powered features. 
+                    Get your key from the <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI platform</a>.
+                  </p>
+                </div>
               </div>
               
               {isEditing && (

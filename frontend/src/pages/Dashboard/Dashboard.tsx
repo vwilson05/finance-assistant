@@ -36,33 +36,6 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleRetry = () => {
-    setError(null);
-    setIsLoading(true);
-    
-    const fetchData = async () => {
-      try {
-        const [profileData, planData] = await Promise.all([
-          financialService.getFinancialProfile(),
-          financialService.getFinancialPlan().catch(err => {
-            console.warn('Failed to fetch financial plan:', err);
-            return null; // Continue even if plan fetch fails
-          })
-        ]);
-        
-        setFinancialProfile(profileData);
-        setFinancialPlan(planData);
-      } catch (err) {
-        console.error('Error fetching financial data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load financial data. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  };
-
   const calculateProgress = (current: number, target: number) => {
     return Math.min(Math.round((current / target) * 100), 100);
   };
@@ -92,7 +65,7 @@ const Dashboard: React.FC = () => {
       <div className="error-container">
         <h2>Oops! Something went wrong</h2>
         <p className="error-message">{error}</p>
-        <button className="retry-button" onClick={handleRetry}>
+        <button className="retry-button" onClick={() => window.location.reload()}>
           Try Again
         </button>
       </div>
@@ -178,10 +151,10 @@ const Dashboard: React.FC = () => {
         {/* Financial Goals Card */}
         <div className="dashboard-card goals-card">
           <h2>Financial Goals</h2>
-          {financialProfile && financialProfile.financialGoals.length > 0 ? (
+          {financialProfile?.financialGoals?.length ? (
             <div className="goals-content">
               {financialProfile.financialGoals.slice(0, 3).map(goal => (
-                <div key={goal.id} className="goal-item">
+                <div key={goal.id || goal.name} className="goal-item">
                   <div className="goal-header">
                     <h3>{goal.name}</h3>
                     <span className={`goal-status ${goal.completed ? 'completed' : 'in-progress'}`}>

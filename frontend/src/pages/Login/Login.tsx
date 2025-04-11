@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../utils/AuthContext';
 import './Login.css';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+  
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -64,18 +69,14 @@ const Login: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await login(formData.email, formData.password);
       
-      // In a real app, this would be an API call to authenticate
-      console.log('Login attempt with:', formData);
-      
-      // Redirect to dashboard on success
-      // In a real app, this would use React Router's navigate
-      window.location.href = '/dashboard';
+      // Get the redirect path from location state or default to dashboard
+      const from = (location.state as any)?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     } catch (error) {
       setErrors({
-        general: 'Login failed. Please check your credentials and try again.'
+        general: error instanceof Error ? error.message : 'Login failed. Please check your credentials and try again.'
       });
     } finally {
       setIsLoading(false);

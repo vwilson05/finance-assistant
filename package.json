@@ -11,6 +11,8 @@
     "test": "cd backend && npm test && cd ../frontend && npm test"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@types/node": "^22.14.0",
+    "concurrently": "^8.2.2",
+    "openai": "^4.93.0"
   }
-} 
+}

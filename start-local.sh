@@ -32,12 +32,6 @@ if ! command -v pip3 &> /dev/null; then
     exit 1
 fi
 
-# Check if Ollama is installed
-if ! command -v ollama &> /dev/null; then
-    echo -e "${RED}Ollama is not installed. Please install Ollama from https://ollama.ai/${NC}"
-    exit 1
-fi
-
 # Install dependencies if node_modules doesn't exist
 if [ ! -d "node_modules" ] || [ ! -d "frontend/node_modules" ] || [ ! -d "backend/node_modules" ]; then
     echo -e "${YELLOW}Installing dependencies...${NC}"
@@ -48,31 +42,6 @@ fi
 if ! python3 -c "import chromadb" &> /dev/null; then
     echo -e "${YELLOW}ChromaDB not found. Installing ChromaDB...${NC}"
     pip3 install chromadb
-fi
-
-# Start Ollama
-echo -e "${YELLOW}Starting Ollama...${NC}"
-ollama serve &
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}Ollama started successfully!${NC}"
-else
-    echo -e "${RED}Failed to start Ollama. It might already be running.${NC}"
-fi
-
-# Pull the Mistral model if not already pulled
-echo -e "${YELLOW}Checking if tinyllama model is available...${NC}"
-ollama list | grep -q tinyllama
-if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}Pulling tinyllama model (this may take a while)...${NC}"
-    ollama pull tinyllama
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}tinyllama model pulled successfully!${NC}"
-    else
-        echo -e "${RED}Failed to pull tinyllama model.${NC}"
-    fi
-else
-    echo -e "${GREEN}tinyllama model is already available.${NC}"
 fi
 
 # Start ChromaDB
