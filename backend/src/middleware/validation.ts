@@ -11,7 +11,7 @@ const userSchema = z.object({
   password: z.string().min(8),
   firstName: z.string(),
   lastName: z.string(),
-  dateOfBirth: z.string().datetime(),
+  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
 });
 
 // Financial profile validation schema

@@ -31,11 +31,15 @@ async function runMigrations() {
                 name: 'create_users_table',
                 sql: `
                     CREATE TABLE IF NOT EXISTS users (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id VARCHAR(36) PRIMARY KEY,
                         email TEXT UNIQUE NOT NULL,
-                        password_hash TEXT NOT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        password TEXT NOT NULL,
+                        firstName TEXT NOT NULL,
+                        lastName TEXT NOT NULL,
+                        dateOfBirth DATE NOT NULL,
+                        openaiApiKey TEXT,
+                        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 `
             },
@@ -43,17 +47,17 @@ async function runMigrations() {
                 name: 'create_financial_profiles_table',
                 sql: `
                     CREATE TABLE IF NOT EXISTS financial_profiles (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        user_id INTEGER NOT NULL,
-                        income REAL,
-                        expenses REAL,
-                        savings REAL,
-                        goals TEXT,
-                        risk_tolerance TEXT,
-                        investment_horizon TEXT,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                        id VARCHAR(36) PRIMARY KEY,
+                        userId VARCHAR(36) NOT NULL,
+                        netWorth DECIMAL(15,2) DEFAULT 0,
+                        monthlyIncome DECIMAL(15,2) DEFAULT 0,
+                        monthlyExpenses DECIMAL(15,2) DEFAULT 0,
+                        riskTolerance DECIMAL(5,2) DEFAULT 0,
+                        investmentHorizon INTEGER DEFAULT 0,
+                        currentSavings DECIMAL(15,2) DEFAULT 0,
+                        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
                     )
                 `
             },
@@ -61,15 +65,15 @@ async function runMigrations() {
                 name: 'create_chat_messages_table',
                 sql: `
                     CREATE TABLE IF NOT EXISTS chat_messages (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        user_id INTEGER NOT NULL,
-                        role TEXT NOT NULL,
+                        id VARCHAR(36) PRIMARY KEY,
+                        userId VARCHAR(36) NOT NULL,
                         content TEXT NOT NULL,
+                        role TEXT NOT NULL,
                         context TEXT,
                         metadata TEXT,
-                        function_call TEXT,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                        functionCall TEXT,
+                        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
                     )
                 `
             }
