@@ -1,84 +1,208 @@
-. Overall Assessment
-General Structure: The project has a basic structure separating frontend and backend concerns.
-Frontend (React): Uses React with TypeScript.
-Backend (Node.js): Uses Node.js with Express and TypeORM.
-Database: SQLite.
-Documentation: Decent documentation in /docs, but needs to be kept up-to-date.
-II. Identified Issues and Improvements
-Frontend:
-src/components/Layout.tsx vs src/components/Layout/Layout.tsx: Redundancy. Decide on a preferred naming convention (directory-based or single component file) and consolidate. (FIXED, assuming /Layout is the preferred pattern)
-page.tsx inside frontend/src/app is probably the landing page. The components inside this page need to be moved and restructured for scalability.
-Backend:
-Redundant Main File Entry Point: There's a likely duplication of application entry-point logic between backend/main.py and backend/app/main.py.
-Configuration Handling: .env.example provides sample configuration, but actual usage might be scattered.
-Incomplete Controller Logic: Several controllers (ChatController, StrategyController, and UserController) have placeholder logic, with TODO comments.
-Logging: Logger is setup and called, but can be improved to include request information and/or correlation ID's.
-General:
-Inconsistent Naming Conventions: Noticeable differences in naming and file organization between the frontend and backend.
-Security Concerns: JWT secrets are in .env.example. They should be in .env and .env.example files needs to be updated. Ensure no hardcoded JWT secrets.
-Error Handling: The middleware approach to error handling is OK. But controllers have try-catch blocks, they have to be removed and middleware needs to handle the errors.
-Auth middleware: Auth middleware is available, but not properly used in the routes, should be used in all routes.
-III. Action Plan for the Cursor Agent
-Below are organized, actionable directives for the Cursor AI agent, addressing the issues and implementing the AI Chatbot feature. I've separated the instructions into phases to make tracking progress easier.
-Phase 1: Project Restructuring & Cleanup
-Directive: "Based on current project directory file structure clean up and restructure the application, remove redundant files and any overlap in functions"
-Task:
-Consolidate main file entry points inside backend.
-Merge or refactor the landing page in frontend/src/app/page.tsx to have components.
-Review and consolidate any files that are serving duplicate purposes, prioritize clarity and avoiding redundancy.
-Expected outcome:
-Application runs correctly after refactoring.
-Streamlined file structure and naming conventions for React components.
-Removal of duplicate functionalities between configuration files.
+```
+# ✅ Implementation Plan: Make Each User Flow Actually Work
 
-Directive: "Update scripts and configurations to reflect restructured file paths, remove redundancies from any other files, adjust start.sh, honcho.yml to match file structure, and update documentation in '/docs/' to match updated files"
-Task:
-Modify start.sh and honcho.yml and other scripts to align with the new backend structure.
-Update paths in any configuration files to correspond with the revised file paths.
-Ensure all links are working and pointing to the correct files.
-Implement dynamic port allocation for ChromaDB to prevent startup conflicts.
-Update .gitignore to properly exclude sensitive and generated files.
-Expected Outcome:
-Scripts and configurations are updated to accommodate refactored file paths.
-ChromaDB starts reliably on an available port.
-Sensitive and generated files are properly excluded from version control.
+This document outlines how to fully implement and test each major user flow in the app. The scaffolding is done (tables, endpoints, pages exist), but none of the functionality is fully wired or working yet. The goal is to **complete, verify, and lock down** each flow before moving on to the next.
 
-Directive: "Update all project documentation in '/docs/' to reflect changes to project structure, delete new_feature.md."
-Task:
-Update architecture and database schema diagrams if modified.
-Ensure consistent markdown formatting and styles.
-Ensure that all documentation is correct and aligns with the refactored code.
-Phase 2: Bug Fixes and Code Quality
-Directive: "Fix any errors, ensure security measures to protect against common attacks (e.g., brute force, SQL injection) and ensure JWT are encrypted in .env files"
-Task:
-Add proper error handling for database connectivity and authentication mechanisms and implement.
-Review and adjust error reporting to the error.log file.
-All passwords must be encrypted using bcryptjs
-Expected Outcome:
-All common attacks vectors will be secured.
-Encrypted JWTs.
-Directive: "Implement middleware across the routes, removing try-catch statements from controllers"
-Task:
-Replace existing try-catch statements inside the controllers with middleware handling.
-Expected Outcome:
-Error handling has been streamlined and centralized, adhering to a structured approach.
-Phase 3: AI Chatbot Implementation
-Directive: "Implement and setup ChromaDB and Ollama to allow the AI Assistant to make correct determinations. Use the local storage and local model inference to ensure speed, privacy, and control."
-Tasks:
-Use OllamaService.ts to start your server.
-Using the users data implement a vector store in ChromaDB to persist the data.
-Expected Outcome:
-Ollama and ChromaDB set up correctly and running.
-Directive: "Implement all the required components of the AI chatbot"
-Tasks:
-Implement vector store to enable storage of embeddings of structured financial data (profile, goals, accounts, history), and use sentence-transformers or a local HuggingFace embedding model.
-Implement data loading of market summaries, update any relevant entries in vector store
-Create prompt builder to inject user info to prompt.
-Create a response generator based on local model.
-Expected Outcome:
-Working AI Chatbot.
-V. Important Considerations for Implementation
-Commit Messages: Use clear and descriptive commit messages for each small change. This helps trace the evolution of the codebase.
-Testing and Documentation: Update tests and documentation every time new changes are made.
-Project Communication: Let team members know that these changes are being implemented. This ensures awareness and transparency.
-Auth middleware: Auth middleware is available, but not properly used in the routes, should be used in all routes.
+---
+
+## 🔐 1. User Signup, Authentication, and OpenAI API Key Storage
+
+### Objectives:
+- User can sign up and log in securely
+- User can submit and store OpenAI API key
+- System uses that key in GPT API calls for that session
+
+### Action Items:
+1. Finalize authentication using **NextAuth.js** or **Supabase Auth**
+   - Use email + password or social login
+   - Store authenticated user ID in `session.user.id`
+
+2. Ensure `users` table stores:
+   - `id`, `email`, `hashed_password`, `openai_api_key`
+
+3. On successful login:
+   - Fetch `openai_api_key` from DB
+   - Store in `session` or securely cache per request
+
+4. In GPT call wrapper (e.g., `lib/gptAgent.ts`):
+   - Inject correct user-specific OpenAI key into `headers['Authorization']`
+   - Throw error if key is missing
+
+### Tests:
+- Sign up → login → hit GPT API → ✅ success
+- Submit bad OpenAI key → ✅ catch + display error
+- User logs in again later → ✅ key loads automatically
+
+**✅ Must work before moving to profile setup**
+
+---
+
+## 👤 2. Profile Setup: Collecting and Saving Structured Financial Info
+
+### Objectives:
+- User can enter and save profile information via the UI
+- Profile data is stored correctly in SQLite
+- App retrieves and displays user-specific profile data on page load
+
+### Action Items:
+1. Profile Form Fields:
+   - Age, income, expenses, household size, location
+   - Risk tolerance dropdown
+   - Add/remove assets and liabilities
+
+2. Submit button:
+   - POSTs data to `/api/profile/update`
+   - Creates or updates `user_profile` row with matching `user_id`
+
+3. On page load:
+   - GET `/api/profile/get` using session `user.id`
+   - Pre-fill form with current values
+
+4. Add asset/liability list management to form
+   - Dynamic add/remove rows in frontend
+   - Save as separate rows in `assets` and `liabilities` tables
+
+### Tests:
+- Fill profile → save → ✅ saved in DB
+- Reload profile page → ✅ all values load correctly
+- Submit partial/invalid form → ✅ validation error
+
+**✅ Must work before allowing plan building or goal setup**
+
+---
+
+## 🎯 3. Goal Setup: Capturing, Storing, and Managing Goals
+
+### Objectives:
+- Users can create financial goals
+- Goals are correctly saved and displayed in dashboard
+- Goals are tied to user ID
+
+### Action Items:
+1. Goal Creation Form:
+   - Name, category (retirement, home, etc.)
+   - Target amount, target date or duration
+   - Priority (low/medium/high)
+
+2. Backend:
+   - POST to `/api/goals/add`
+   - Store in `goals` table with `user_id`
+
+3. Display:
+   - GET `/api/goals/list`
+   - Show active goals on dashboard and goals page
+   - Allow editing/deleting goals
+
+### Tests:
+- Create → View → Edit → Delete goals → ✅ all work with expected data
+- Two users cannot see each other’s goals → ✅ user scoping enforced
+
+**✅ Must work before GPT can generate a plan**
+
+---
+
+## 📊 4. Building Financial Plans with GPT-4
+
+### Objectives:
+- User can ask GPT to generate a plan for a specific goal
+- GPT receives user profile + goal + RAG context
+- System saves plan (structured + narrative) on confirmation
+
+### Action Items:
+1. GPT Wrapper (`lib/gptAgent.ts`)
+   - Load user’s profile and goal by goal ID
+   - RAG: query Chroma for similar past plans or reflections
+   - Construct GPT prompt and call OpenAI API using user’s key
+
+2. UI:
+   - Let user choose goal → describe request
+   - Display GPT plan + summary
+   - On “Save Plan”:
+     - Store to `goal_plans` (structured) and Chroma (narrative + metadata)
+
+3. Add GPT function calling:
+   - Expose `/simulate_plan` or similar to let GPT call APIs directly
+
+### Tests:
+- Ask for a plan → GPT returns a valid plan → ✅ summary + monthly contribution calculated
+- Save plan → ✅ appears in DB and shows on dashboard
+- Ask GPT again for same goal → ✅ RAG includes past plans
+
+**✅ Must be stable before enabling progress tracking**
+
+---
+
+## 📈 5. Progress Tracking, Plan Adjustments, and Nudges
+
+### Objectives:
+- User can track contributions toward each goal
+- App compares plan vs actual and nudges user accordingly
+- GPT can summarize and suggest updates
+
+### Action Items:
+1. Create `/goal/{id}` view:
+   - Show goal, plan, progress bar
+   - Log contributions (date + amount)
+
+2. Track progress in `goal_progress` table
+   - GET total actual vs planned
+   - Calculate on-track/off-track status
+
+3. Create weekly summarizer (cron or manual button for now)
+   - For each goal: compare actual vs required
+   - Use GPT to summarize and suggest nudges
+   - Save summary in Chroma and display in dashboard
+
+### Tests:
+- Log a $500 deposit toward a $5000 goal → ✅ progress % correct
+- Fall behind → ✅ GPT suggests extending timeline or adjusting savings
+- GPT summaries show correct insight → ✅ injected into future chats
+
+**✅ Must be functional before macro triggers are added**
+
+---
+
+## 🌐 6. Macro Factor Detection (Future Step)
+
+### Objectives:
+- Detect macro events (e.g., rate hikes, inflation)
+- Notify user + give GPT context to adjust plans
+
+### Action Items:
+1. Start with static JSON or news API feed
+   - Store in `macro_events` table
+
+2. On event detection:
+   - Call GPT: “Fed raised interest rates. Does this impact any of user’s goals?”
+   - Use profile + goals to create actionable analysis
+
+3. Display macro events in dashboard
+   - Offer “Recalculate Plan” button per goal
+
+4. Save macro-triggered GPT responses to Chroma for memory
+
+### Tests:
+- Trigger macro → GPT explains impact → ✅ suggestions appear
+- User accepts → plan updates accordingly → ✅ reflected in SQLite
+
+**✅ Future functionality — optional for initial product**
+
+---
+
+# 🎉 Final Notes
+
+**Key Rule:** DO NOT move forward to the next flow until the previous step is working and testable via UI and DB.
+
+This order should be followed strictly:
+1. ✅ Auth
+2. ✅ Profile
+3. ✅ Goals
+4. ✅ GPT plans
+5. ✅ Progress + tracking
+6. 🚧 Macro triggers (optional)
+
+Use clear functional tests at each stage. Catch errors, validate DB writes, confirm user-specific scope. By the end, the system should feel like a real intelligent financial advisor, not just a GPT front-end.
+
+---
+END OF INSTRUCTION
+```

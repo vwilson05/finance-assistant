@@ -6,6 +6,8 @@ This document contains all the essential technical and functional details for th
 |----------------------------------------|--------|--------------------------------------------------------------------|-----------------------------------|---------------------------------------|
 | `/api/user/profile`                    | GET    | Retrieve user financial profile                                    | User ID                           | User profile object                   |
 | `/api/user/profile`                    | POST   | Create or update user profile                                      | Profile data in JSON              | Updated profile confirmation          |
+| `/api/user/openai-key`                 | GET    | Check if user has OpenAI API key set                               | None (uses auth token)            | `{ hasApiKey: boolean }`             |
+| `/api/user/openai-key`                 | PUT    | Set or update user's OpenAI API key                                | `{ openaiApiKey: string }`        | Success confirmation                  |
 | `/api/strategy`                        | GET    | List all strategies for a user                                     | User ID                           | Array of strategy objects             |
 | `/api/strategy`                        | POST   | Generate a tailored financial strategy based on user profile        | User ID, strategy type            | Strategy object                       |
 | `/api/chat`                            | POST   | Send a message to the AI chatbot                                   | User ID, message                  | AI response                           |
@@ -19,6 +21,7 @@ This document contains all the essential technical and functional details for th
   - `password`: Hashed password.
   - `firstName`: User's first name.
   - `lastName`: User's last name.
+  - `openaiApiKey`: User's OpenAI API key (nullable).
   - `createdAt`: Timestamp of account creation.
   - `updatedAt`: Timestamp of last update.
 

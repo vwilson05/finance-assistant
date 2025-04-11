@@ -16,6 +16,7 @@ The Financial Assistant application uses SQLite as its database, managed through
   - `lastName` (String)
   - `name` (String)
   - `dateOfBirth` (Date)
+  - `openaiApiKey` (String, Nullable)
   - `createdAt` (Timestamp)
   - `updatedAt` (Timestamp)
 - **Relationships**:
@@ -73,6 +74,7 @@ The Financial Assistant application uses SQLite as its database, managed through
   - `content` (Text)
   - `context` (JSON Object)
   - `metadata` (JSON Object)
+  - `functionCall` (JSON Object)
   - `createdAt` (Timestamp)
 - **Relationships**:
   - Many-to-One with User
@@ -147,6 +149,15 @@ The Financial Assistant application uses SQLite as its database, managed through
   "tokens": "number",
   "processingTime": "number",
   "model": "string"
+}
+```
+
+### FunctionCall
+```json
+{
+  "name": "string",
+  "arguments": "object",
+  "result": "object?"
 }
 ```
 

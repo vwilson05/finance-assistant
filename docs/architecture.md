@@ -46,6 +46,7 @@ The application follows a comprehensive user flow that is supported by the syste
 - **Backend API:** Express.js RESTful endpoints to handle user profiles, financial data management, and plan generation.
 - **AI Engine:** Processes financial profiles, market data, and user goals to generate investment strategies and recommendations.
 - **Chatbot Advisor:** An interactive module allowing users to ask questions like "Should I sell my real estate holdings?" and receive data-driven responses.
+- **Function Calling:** AI-powered function execution system that enables the chatbot to perform specific actions like retrieving financial data or updating user profiles.
 - **Database:** SQLite storage of user data, financial profiles, investment accounts, goals, and plan history.
 - **Vector Store:** ChromaDB for storing and retrieving financial context and embeddings.
 - **Migration System:** TypeORM-based migration system for managing database schema changes.
@@ -87,11 +88,13 @@ The project follows a modern full-stack architecture with clear separation betwe
 | AD-010      | Implement TypeORM migrations for database schema changes| [Date]  | Ensures reliable database schema evolution                 |
 | AD-011      | Add user intent detection and emotional state analysis | [Date]  | Improves AI personalization and response quality           |
 | AD-012      | Store conversation context with metadata               | [Date]  | Enables more personalized and context-aware responses      |
+| AD-013      | Implement function calling in AI responses             | [Date]  | Enables AI to perform specific actions and data operations |
+| AD-014      | Store function call results in chat history            | [Date]  | Maintains conversation context and action history          |
 
 ## Technology Stack
 - **Frontend**: React, TypeScript, Material-UI, React Query, Axios
 - **Backend**: Node.js, Express, TypeORM, SQLite, OpenAI, ChromaDB
-- **AI**: Ollama, ChromaDB, Vector Store
+- **AI**: Ollama, ChromaDB, Vector Store, Function Calling
 - **Authentication**: JWT, bcrypt
 - **Development**: TypeScript, ESLint, Prettier, Jest
 

@@ -13,6 +13,7 @@ The Personal Financial Assistant is an AI-powered application designed to provid
 - **Dynamic Market Monitoring & Plan Adjustment**: Monitor market data and adjust plans
 - **Advanced Tax Optimization Tools**: Minimize tax liabilities and maximize returns
 - **Enhanced AI Personalization**: Receive tailored advice based on preferences and emotional state
+- **AI Function Execution**: Perform specific actions through natural language commands
 
 ## Target Audience
 - Individuals seeking financial advice without the cost of a traditional financial advisor
@@ -67,6 +68,8 @@ The project is currently in active development with the following completed feat
 - Vector store integration for financial context
 - Database migrations for schema evolution
 - Enhanced AI personalization with user intent detection and emotional state analysis
+- AI function calling for executing specific actions
+- Comprehensive chat history with function call results
 
 ## Next Steps
 1. Implement comprehensive financial planning tools
@@ -76,6 +79,7 @@ The project is currently in active development with the following completed feat
 5. Improve the user interface and experience
 6. Conduct thorough testing and user acceptance testing
 7. Deploy to production and gather user feedback
+8. Expand function calling capabilities for more complex operations
 
 ## Project Team
 - **Product Owner**: [Name]
