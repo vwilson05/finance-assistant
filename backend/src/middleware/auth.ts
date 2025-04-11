@@ -37,6 +37,7 @@ export const authenticate = async (
           firstName: 'Development',
           lastName: 'User',
           dateOfBirth: new Date('1990-01-01'),
+          openaiApiKey: 'dev-openai-key',
         });
         await userRepository.save(user);
       }

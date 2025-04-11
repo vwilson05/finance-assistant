@@ -59,6 +59,15 @@ const migrations: Migration[] = [
       CREATE INDEX IF NOT EXISTS idx_chat_messages_user_id ON chat_messages(userId);
     `,
     down: 'DROP TABLE IF EXISTS chat_messages;'
+  },
+  {
+    name: '004_add_openai_key_to_users',
+    up: `
+      ALTER TABLE users ADD COLUMN openaiApiKey VARCHAR(255);
+    `,
+    down: `
+      ALTER TABLE users DROP COLUMN openaiApiKey;
+    `
   }
 ];
 

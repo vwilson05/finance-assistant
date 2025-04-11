@@ -19,6 +19,10 @@ router.put('/profile/:id', [validateUser, authorizeUser(':id')], userController.
 router.put('/password/:id', [authLimiter, authorizeUser(':id')], userController.changePassword.bind(userController));
 router.delete('/account/:id', authorizeUser(':id'), userController.deleteAccount.bind(userController));
 
+// OpenAI API Key routes
+router.put('/openai-key', userController.setOpenAIKey.bind(userController));
+router.get('/openai-key', userController.getOpenAIKey.bind(userController));
+
 // Admin routes
 router.get('/', userController.getAllUsers.bind(userController));
 router.get('/:id', userController.getUserById.bind(userController));

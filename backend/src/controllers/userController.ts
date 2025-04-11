@@ -314,4 +314,49 @@ export class UserController {
       message: 'User deleted successfully',
     });
   }
+
+  async setOpenAIKey(req: Request, res: Response, next: NextFunction) {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new AppError(401, 'User not authenticated');
+    }
+
+    const { openaiApiKey } = req.body;
+    if (!openaiApiKey) {
+      throw new AppError(400, 'OpenAI API key is required');
+    }
+
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+
+    user.openaiApiKey = openaiApiKey;
+    await this.userRepository.save(user);
+    logger.info(`OpenAI API key updated for user: ${user.email}`);
+
+    res.status(200).json({
+      message: 'OpenAI API key updated successfully',
+    });
+  }
+
+  async getOpenAIKey(req: Request, res: Response, next: NextFunction) {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new AppError(401, 'User not authenticated');
+    }
+
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+
+    if (!user.openaiApiKey) {
+      throw new AppError(404, 'OpenAI API key not found');
+    }
+
+    res.status(200).json({
+      hasApiKey: true,
+    });
+  }
 } 

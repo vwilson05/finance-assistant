@@ -22,6 +22,9 @@ export class User {
   @Column({ type: 'date' })
   dateOfBirth: Date;
 
+  @Column({ nullable: true })
+  openaiApiKey: string;
+
   @OneToOne(() => FinancialProfile, profile => profile.user, { eager: true })
   financialProfile: FinancialProfile;
 
